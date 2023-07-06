@@ -1,20 +1,6 @@
-import express from "express";
-import { config } from "dotenv";
-config();
+type GameKey = "rune" | "statsMod" | "startItem" | "completedItem" | "item";
 
-const app = express();
-const { PORT } = process.env;
-
-app.get("/summoner", (_, res) => {
-  res.send("Hello World!");
-});
-
-app.listen(PORT, () => {
-  console.log("Server is running on port 3000");
-});
-
-
-function sortData(singleGame: any, isGameHistory = true) {
+export function sortGame(singleGame: any, isGameHistory = true) {
   if (isGameHistory) {
     const itemsEndGame = filterArray(singleGame, "item");
     singleGame["items"] = itemsEndGame;
@@ -26,9 +12,7 @@ function sortData(singleGame: any, isGameHistory = true) {
   singleGame["completedItems"] = filterArray(singleGame, "completedItem");
 }
 
-type DataKey = "rune" | "statsMod" | "startItem" | "completedItem" | "item";
-
-function filterArray(array: any, filterKey: DataKey) {
+function filterArray(array: any, filterKey: GameKey) {
   const uncleanedArray = Object.fromEntries(
     Object.entries(array).filter(([key]) => key.startsWith(filterKey))
   );
