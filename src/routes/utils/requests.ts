@@ -5,25 +5,27 @@ export async function getRequest(
   isApiKeyNeeded = false,
   hasToTrowException = true
 ) {
-  const options = createOptions("GET", null, isApiKeyNeeded);
-
   try {
+    const options = createOptions("GET", null, isApiKeyNeeded);
+
     const response = await fetch(url, options);
     if (!response.ok) handleError(response.status, hasToTrowException);
 
     const data = await response.json();
 
     return data;
-  } catch (err) {}
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 export async function postRequest(url: string, action: string, body: any) {
   const options = createOptions("POST", body);
 
   const response = await fetch(url + action, options);
-  if (!response.ok){
+  if (!response.ok) {
     throw new Error("Post request failed -> " + response.status);
-  };
+  }
 }
 
 function handleError(statusCode: number, hasToTrowException: boolean) {

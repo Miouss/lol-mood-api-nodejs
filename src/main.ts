@@ -1,20 +1,20 @@
 import express from "express";
-import { config } from "dotenv";
-config();
 
 const app = express();
-const { PORT } = process.env;
+const PORT = 3000;
 
 app.get("/summoner", (_, res) => {
   res.send("Hello World!");
 });
 
-app.listen(PORT, () => {
+import { connectToDatabase } from "./config";
+
+app.listen(PORT, async () => {
   console.log("Server is running on port 3000");
+  connectToDatabase();
 });
 
-
-function sortData(singleGame: any, isGameHistory = true) {
+/* function sortData(singleGame: any, isGameHistory = true) {
   if (isGameHistory) {
     const itemsEndGame = filterArray(singleGame, "item");
     singleGame["items"] = itemsEndGame;
@@ -43,4 +43,4 @@ function filterArray(array: any, filterKey: DataKey) {
   }
 
   return cleanedArray;
-}
+} */
