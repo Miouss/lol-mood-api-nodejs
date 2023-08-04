@@ -1,11 +1,10 @@
-import { RowDataPacket } from "mysql2/promise";
-import { insertInto, selectFromWhere, updateSetWhere } from "../helpers";
-import { executeQuery, getRowId } from "../utils";
+import { insertInto, updateSetWhere } from "../helpers";
+import { executeQuery, getRowId, isStored } from "../utils";
 
 export class Account {
   private table = "account";
 
-  async create(data: AccountType) {
+  public async create(data: AccountType) {
     const query = insertInto(
       this.table,
       data as unknown as Record<string, string | number>
@@ -14,7 +13,7 @@ export class Account {
     await executeQuery(query, "create account");
   }
 
-  async updateRank(data: RankType, puuid: string) {
+  public async updateRank(data: RankType, puuid: string) {
     const query = updateSetWhere(
       this.table,
       data as unknown as Record<string, string | number>,
@@ -24,28 +23,15 @@ export class Account {
     await executeQuery(query, "setRank");
   }
 
-  async getId(puuid: string) {
+  public async getId(puuid: string) {
     return await getRowId(this.table, { puuid });
   }
 
-  async exists(puuid: string) {
-    const cols = ["puuid"];
-
-    const query = selectFromWhere(this.table, cols, { puuid });
-
-    const rows = await executeQuery(query, "isStored");
-
-    if (rows) {
-      console.log("Account found");
-      return true;
-    }
-
-    console.log("Account not found");
-
-    return false;
+  public async exists(puuid: string) {
+    return await isStored(this.table, { puuid });
   }
 
-  async update(data: AccountType) {
+  public async update(data: AccountType) {
     const setData = {
       name: data.name,
       level: data.level,
