@@ -7,28 +7,27 @@ import {
   Asset,
   GameInfo,
 } from "./database/models";
+import { summoner } from "./routes";
 
 const app = express();
 const PORT = 3000;
 
-app.get("/summoner", (_, res) => {
-  res.send("Hello World!");
-});
+app.use("/summoner", summoner);
 
 app.listen(PORT, async () => {
   console.log("Server is running on port 3000\n");
 
-/*   await testAccount();
+  /*   await testAccount();
   await testPositioning();
   await testChamp();
   await testGame();
-  await testAsset(); */
-  await testGameInfo();
+  await testAsset(); 
+  await testGameInfo();*/
 });
 
 async function testGameInfo() {
   const gameInfo = new GameInfo();
-/* 
+  /* 
   const data = {
     game_id: 1,
     account_id: 1,

@@ -1,19 +1,19 @@
 import { Response, NextFunction } from "express";
 import { getRequest, postRequest } from "../../utils/requests";
+import { getSummonerByName, getSummonerRank } from "../utils";
 
 export async function getAccount(req: any, _: Response, next: NextFunction) {
   try {
     const server = req.get("host");
     const { host } = req;
+    const { summonerName } = req.query;
+    let endpoint;
 
-    const riotApiEndpointGetAccount = `https://${host}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${req.query.summonerName}`;
-    const updatedAccount: any = await getRequest(
-      riotApiEndpointGetAccount,
-      true
-    );
+    endpoint = getSummonerByName(summonerName, host);
+    const updatedAccount: any = await getRequest(endpoint, true);
 
-    const riotApiEndpointGetRank = `https://${host}.api.riotgames.com/lol/league/v4/entries/by-summoner/${updatedAccount.id}`;
-    const updatedRank: any = await getRequest(riotApiEndpointGetRank, true);
+    endpoint = getSummonerRank(updatedAccount.id, host);
+    const updatedRank: any = await getRequest(endpoint, true);
 
     updatedRank.forEach((element: any) => {
       if (element["queueType"] === "RANKED_SOLO_5x5") {
