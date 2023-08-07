@@ -1,5 +1,5 @@
 import { insertInto } from "../helpers";
-import { executeQuery } from "../utils";
+import { convertAllRepetitivesFields, executeQuery } from "../utils";
 
 export class GameInfo {
   private table = "game_info";
@@ -12,6 +12,14 @@ export class GameInfo {
     account: "account",
   };
 
+  public async get(gameInfoId: number) {
+    const query = `SELECT * FROM ${this.table} WHERE game_id = ${gameInfoId}`;
+
+    const result = await executeQuery(query, "getGameInfo");
+    console.log(result);
+    return result;
+  }
+
   public async set(data: Data) {
     const query = insertInto(
       this.table,
@@ -20,6 +28,29 @@ export class GameInfo {
 
     await executeQuery(query, "setGameInfo");
   }
+
+  public async getChampStats(champName: string) {
+    const query = `SELECT * FROM ${this.table} INNER JOIN ${this.tables.champ} ON ${this.table}.champ_id = ${this.tables.champ}.id WHERE ${this.tables.champ}.name = "${champName}"`;
+    const result = await executeQuery(query, "getChampStats");
+    if (!result) return;
+
+    convertAllRepetitivesFields(result);
+
+    console.log((result as any)[0]);
+  }
+}
+
+interface ChampStats {
+  patch: string;
+  game_id: number;
+  lane: string;
+  positioning_id: number;
+  skill_order: string;
+  evolves_order: string;
+  win: boolean;
+  kills: number;
+  deaths: number;
+  assists: number;
 }
 
 interface Data {

@@ -18,17 +18,17 @@ app.get("/summoner", (_, res) => {
 app.listen(PORT, async () => {
   console.log("Server is running on port 3000\n");
 
-  await testAccount();
+/*   await testAccount();
   await testPositioning();
   await testChamp();
   await testGame();
-  await testAsset();
+  await testAsset(); */
   await testGameInfo();
 });
 
 async function testGameInfo() {
   const gameInfo = new GameInfo();
-
+/* 
   const data = {
     game_id: 1,
     account_id: 1,
@@ -83,7 +83,8 @@ async function testGameInfo() {
     completed_item5_id: 1,
   };
 
-  await gameInfo.set(data);
+  await gameInfo.set(data); */
+  await gameInfo.getChampStats("Ezreal");
 }
 
 async function testGame() {
