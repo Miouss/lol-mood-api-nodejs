@@ -1,11 +1,12 @@
 import { Response, NextFunction } from "express";
 
-export function sendResponse(req: any, res: Response, next: NextFunction) {
+export function sendResponse(_: any, res: Response, next: NextFunction) {
   try {
-    const { updatedAccount, updatedRank } = res.locals;
+    const { updatedAccount, updatedRank, storedAccount } = res.locals;
     const response = {
       ...updatedAccount,
       ...updatedRank,
+      storedAccount,
     };
 
     res.status(200).json(response);

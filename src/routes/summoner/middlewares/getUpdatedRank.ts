@@ -27,7 +27,10 @@ export async function getUpdatedRank(
       }
     });
 
-    res.locals.updatedRank = updatedRank;
+    res.locals.updatedAccount = {
+      ...res.locals.updatedAccount,
+      ...updatedRank,
+    }
 
     next();
   } catch (err) {

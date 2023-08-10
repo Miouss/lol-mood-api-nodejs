@@ -1,9 +1,26 @@
 import { Router } from "express";
 
-import { convertRegion, getUpdatedAccount, getUpdatedRank, sendResponse } from "./middlewares";
+import {
+  verifParams,
+  convertRegion,
+  getUpdatedAccount,
+  getUpdatedRank,
+  getStoredAccount,
+  updateAccountInDB,
+  sendResponse,
+} from "./middlewares";
 
 const summoner = Router();
 
-summoner.get("/", convertRegion, getUpdatedAccount, getUpdatedRank, sendResponse);
+summoner.get(
+  "/",
+  verifParams,
+  convertRegion,
+  getUpdatedAccount,
+  getUpdatedRank,
+  getStoredAccount,
+  updateAccountInDB,
+  sendResponse
+);
 
 export { summoner };
