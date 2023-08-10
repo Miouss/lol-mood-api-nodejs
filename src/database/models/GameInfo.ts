@@ -22,7 +22,7 @@ export class GameInfo {
 
   public static async set(data: Data) {
     const query = insertInto(
-      this.table,
+      this.table).values(
       data as unknown as Record<string, string | number>
     );
 

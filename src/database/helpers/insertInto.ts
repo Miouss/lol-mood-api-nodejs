@@ -1,6 +1,6 @@
 import { getQueryParams } from "../utils";
 
-export function insertInto(
+export function insertIntoValues(
   table: string,
   data: Record<string, string | number>
 ) {
@@ -9,4 +9,12 @@ export function insertInto(
   const query = `INSERT INTO ${table} ${cols} VALUES ${values}`;
 
   return query;
+}
+
+export function insertInto(table: string) {
+  return {
+    values: (data: Record<string, string | number>) => {
+      return insertIntoValues(table, data);
+    },
+  };
 }

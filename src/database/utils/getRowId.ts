@@ -1,9 +1,9 @@
 import { RowDataPacket } from "mysql2/promise";
-import { selectFromWhere } from "../helpers";
+import { select } from "../helpers";
 import { executeQuery } from ".";
 
 export async function getRowId(table: string, where: Record<string, string>) {
-  const query = selectFromWhere(table, ["id"], where);
+  const query = select("id").from(table).where(where);
 
   const rows = (await executeQuery(query, `get${table}Id`)) as RowDataPacket[];
 

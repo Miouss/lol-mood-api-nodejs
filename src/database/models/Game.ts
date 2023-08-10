@@ -15,7 +15,7 @@ export class Game {
       duration,
     };
 
-    const query = insertInto(this.table, values);
+    const query = insertInto(this.table).values(values);
 
     await executeQuery(query, "setGame");
   }

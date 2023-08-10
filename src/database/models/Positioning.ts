@@ -9,7 +9,7 @@ export class Positioning {
   }
 
   public static async set(position: string) {
-    const query = insertInto(this.table, { lane: position });
+    const query = insertInto(this.table).values({ lane: position });
 
     await executeQuery(query, "setPositioning");
   }

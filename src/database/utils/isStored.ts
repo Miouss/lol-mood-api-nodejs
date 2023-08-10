@@ -1,11 +1,8 @@
-import { selectFromWhere } from "../helpers";
+import { select } from "../helpers";
 import { executeQuery } from "./executeQuery";
 
-export async function isStored(
-  table: string,
-  where: Record<string, string>
-) {
-  const query = selectFromWhere(table, ["id"], where);
+export async function isStored(table: string, where: Record<string, string>) {
+  const query = select("id").from(table).where(where);
 
   const rows = await executeQuery(query, `is${table}Stored`);
 

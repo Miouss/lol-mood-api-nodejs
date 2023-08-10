@@ -7,7 +7,7 @@ export async function convertRegion(
   next: NextFunction
 ) {
   try {
-    const { regionCode } = req.query as any;
+    const { regionCode } = req.params as any;
     const { host, region } = getRegion(regionCode);
 
     res.locals.host = host;

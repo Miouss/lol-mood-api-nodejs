@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 
-export function verifParams(req: Request, res: Response, next: NextFunction) {
+export function verifParams(req: Request, _: Response, next: NextFunction) {
   try {
-    if (req.query.summonerName === undefined) {
+    if (req.params.summonerName === undefined) {
       throw new Error("Missing summonerName");
     }
 
-    if (req.query.regionCode === undefined) {
+    if (req.params.regionCode === undefined) {
       throw new Error("Missing region");
     }
 

@@ -14,6 +14,7 @@ export async function updateAccountInDB(
 
     if (!isAccountFound)
       throw new Error("No account found for this summoner name");
+    
     if (!hasRankedGames)
       throw new Error("No ranked games found for this account");
 
@@ -27,6 +28,8 @@ export async function updateAccountInDB(
       await Account.create(updatedAccount);
     }
 
+    res.locals.account = updatedAccount;
+    
     next();
   } catch (err) {
     console.error(err);

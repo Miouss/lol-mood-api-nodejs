@@ -9,7 +9,7 @@ export class Champ {
   }
 
   public static async set(champ: string) {
-    const query = insertInto(this.table, { name: champ });
+    const query = insertInto(this.table).values({ name: champ });
 
     await executeQuery(query, "setChamp");
   }

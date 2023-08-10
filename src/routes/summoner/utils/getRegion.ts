@@ -1,45 +1,23 @@
-export function getRegion(regionCode: string) {
-  let host;
-  let region;
+const regionMap = {
+  eune: { host: "eun1", region: "europe" },
+  euw: { host: "euw1", region: "europe" },
+  na: { host: "na1", region: "americas" },
+  br: { host: "br1", region: "americas" },
+  lan: { host: "la1", region: "asia" },
+  las: { host: "la2", region: "asia" },
+  kr: { host: "kr", region: "asia" },
+  ru: { host: "ru", region: "asia" },
+  jp: { host: "jp1", region: "asia" },
+};
 
-  switch (regionCode) {
-    case "EUNE":
-      host = "eun1";
-      region = "europe";
-      break;
-    case "EUW":
-      host = "euw1";
-      region = "europe";
-      break;
-    case "NA":
-      host = "na1";
-      region = "americas";
-      break;
-    case "BR":
-      host = "br1";
-      region = "americas";
-      break;
-    case "LAN":
-      host = "la1";
-      region = "asia";
-      break;
-    case "LAS":
-      host = "la2";
-      region = "asia";
-      break;
-    case "KR":
-      host = "kr";
-      region = "asia";
-      break;
-    case "RU":
-      host = "ru";
-      region = "asia";
-      break;
-    case "JP":
-      host = "jp1";
-      region = "asia";
-      break;
+export function getRegion(regionCode: RegionCodeType) {
+  const regionInfo = regionMap[regionCode];
+
+  if (!regionInfo) {
+    throw new Error("Invalid region code");
   }
 
-  return { host, region };
+  return regionInfo;
 }
+
+type RegionCodeType = keyof typeof regionMap;

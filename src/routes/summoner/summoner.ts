@@ -7,20 +7,25 @@ import {
   getUpdatedRank,
   getStoredAccount,
   updateAccountInDB,
-  sendResponse,
+  returnStoredAccount,
+  returnMatches,
 } from "./middlewares";
+import { getMatches } from "./middlewares/getMatches";
 
 const summoner = Router();
 
 summoner.get(
-  "/",
+  "/account/:regionCode/:summonerName",
   verifParams,
   convertRegion,
   getUpdatedAccount,
   getUpdatedRank,
   getStoredAccount,
   updateAccountInDB,
-  sendResponse
+  getStoredAccount,
+  returnStoredAccount
 );
+
+summoner.get("/matches/:regionCode/:puuid", convertRegion, getMatches, returnMatches);
 
 export { summoner };

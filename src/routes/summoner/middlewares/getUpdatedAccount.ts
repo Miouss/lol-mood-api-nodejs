@@ -1,19 +1,22 @@
 import { Request, Response, NextFunction } from "express";
-import { getRIOT } from "../../utils/requests";
-import { getSummonerByName } from "../utils";
+import { riot } from "../../utils/requests";
 
-export async function getUpdatedAccount(req: Request, res: Response, next: NextFunction) {
+export async function getUpdatedAccount(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
-    const { summonerName } = req.query as any;
+    const { summonerName } = req.params as any;
     const { host } = res.locals;
 
-    const endpoint = getSummonerByName(summonerName, host);
-    
-    const updatedAccount: any = await getRIOT(endpoint);
+    const updatedAccount: any = await riot(host).getSummonerByName(
+      summonerName
+    );
 
     delete updatedAccount.accountId;
     delete updatedAccount.revisionDate;
-    
+
     res.locals.updatedAccount = updatedAccount;
 
     next();

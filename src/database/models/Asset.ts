@@ -9,7 +9,7 @@ export class Asset {
   }
 
   public static async set(assetId: string) {
-    const query = insertInto(this.table, { identifier: assetId });
+    const query = insertInto(this.table).values({ identifier: assetId });
 
     await executeQuery(query, "setAsset");
   }

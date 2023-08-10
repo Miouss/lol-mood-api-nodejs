@@ -1,12 +1,11 @@
-import { insertInto, updateSetWhere, selectFromWhere } from "../helpers";
+import { insertInto, updateSetWhere, select } from "../helpers";
 import { executeQuery, getRowId, isStored } from "../utils";
 
 export class Account {
   private static table = "account";
 
   public static async create(data: AccountType) {
-    const query = insertInto(
-      this.table,
+    const query = insertInto(this.table).values(
       convertDataForDB(data) as unknown as Record<string, string | number>
     );
 
@@ -14,7 +13,7 @@ export class Account {
   }
 
   public static async get(puuid: string) {
-    const query = selectFromWhere(this.table, ["*"], { puuid });
+    const query = select("*").from(this.table).where({ puuid });
 
     return await executeQuery(query, "getAccount");
   }
