@@ -2,13 +2,13 @@ import { insertInto } from "../helpers";
 import { executeQuery, getRowId, isStored } from "../utils";
 
 export class Game {
-  private table = "game";
+  private static table = "game";
 
-  public async getId(gameId: string) {
+  public static async getId(gameId: string) {
     return await getRowId(this.table, { identifier: gameId });
   }
 
-  public async set(gameId: string, patch: string, duration: string) {
+  public static async set(gameId: string, patch: string, duration: string) {
     const values = {
       identifier: gameId,
       patch,
@@ -20,7 +20,7 @@ export class Game {
     await executeQuery(query, "setGame");
   }
 
-  public async exists(gameId: string) {
+  public static async exists(gameId: string) {
     return await isStored(this.table, { identifier: gameId });
   }
 }

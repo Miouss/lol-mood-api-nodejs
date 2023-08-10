@@ -2,9 +2,9 @@ import { insertInto } from "../helpers";
 import { convertAllRepetitivesFields, executeQuery } from "../utils";
 
 export class GameInfo {
-  private table = "game_info";
+  private static table = "game_info";
 
-  private tables = {
+  private static tables = {
     game: "game",
     champ: "champ",
     positioning: "positioning",
@@ -12,7 +12,7 @@ export class GameInfo {
     account: "account",
   };
 
-  public async get(gameInfoId: number) {
+  public static async get(gameInfoId: number) {
     const query = `SELECT * FROM ${this.table} WHERE game_id = ${gameInfoId}`;
 
     const result = await executeQuery(query, "getGameInfo");
@@ -20,7 +20,7 @@ export class GameInfo {
     return result;
   }
 
-  public async set(data: Data) {
+  public static async set(data: Data) {
     const query = insertInto(
       this.table,
       data as unknown as Record<string, string | number>
@@ -29,7 +29,7 @@ export class GameInfo {
     await executeQuery(query, "setGameInfo");
   }
 
-  public async getChampStats(champName: string) {
+  public static async getChampStats(champName: string) {
     const query = `SELECT * FROM ${this.table} INNER JOIN ${this.tables.champ} ON ${this.table}.champ_id = ${this.tables.champ}.id WHERE ${this.tables.champ}.name = "${champName}"`;
     const result = await executeQuery(query, "getChampStats");
     if (!result) return;

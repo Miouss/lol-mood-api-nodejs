@@ -1,60 +1,75 @@
-import { insertInto, updateSetWhere } from "../helpers";
+import { insertInto, updateSetWhere, selectFromWhere } from "../helpers";
 import { executeQuery, getRowId, isStored } from "../utils";
 
 export class Account {
-  private table = "account";
+  private static table = "account";
 
-  public async create(data: AccountType) {
+  public static async create(data: AccountType) {
     const query = insertInto(
       this.table,
-      data as unknown as Record<string, string | number>
+      convertDataForDB(data) as unknown as Record<string, string | number>
     );
 
     await executeQuery(query, "create account");
   }
 
-  public async updateRank(data: RankType, puuid: string) {
-    const query = updateSetWhere(
-      this.table,
-      data as unknown as Record<string, string | number>,
-      { puuid }
-    );
+  public static async get(puuid: string) {
+    const query = selectFromWhere(this.table, ["*"], { puuid });
 
-    await executeQuery(query, "setRank");
+    return await executeQuery(query, "getAccount");
   }
 
-  public async getId(puuid: string) {
+  public static async getId(puuid: string) {
     return await getRowId(this.table, { puuid });
   }
 
-  public async exists(puuid: string) {
+  public static async exists(puuid: string) {
     return await isStored(this.table, { puuid });
   }
 
-  public async update(data: AccountType) {
-    const setData = {
-      name: data.name,
-      level: data.level,
-      profile_icon_id: data.profile_icon_id,
-    };
-
-    const query = updateSetWhere(this.table, setData, { puuid: data.puuid });
+  public static async update(data: AccountType) {
+    const query = updateSetWhere(this.table, convertDataForDB(data), {
+      puuid: data.puuid,
+    });
 
     await executeQuery(query, "updateAccount");
   }
 }
 
-interface AccountType {
+export interface AccountType {
   puuid: string;
   name: string;
-  level: number;
-  profile_icon_id: number;
-}
-
-interface RankType {
-  "`rank`": string;
+  summonerLevel: number;
+  profileIconId: number;
+  rank: string;
   tier: string;
   lp: number;
   games: number;
   wins: number;
+}
+
+export interface AccountTypeDB {
+  puuid: string;
+  name: string;
+  level: number;
+  profile_icon_id: number;
+  grade: string;
+  tier: string;
+  lp: number;
+  games: number;
+  wins: number;
+}
+
+function convertDataForDB(data: AccountType) {
+  return {
+    puuid: data.puuid,
+    name: data.name,
+    level: data.summonerLevel,
+    profile_icon_id: data.profileIconId,
+    grade: data.rank,
+    tier: data.tier,
+    lp: data.lp,
+    games: data.games,
+    wins: data.wins,
+  };
 }
