@@ -2,13 +2,12 @@ export function convertRepetitivesFields(
   data: any,
   newFieldName: string,
   prefix: string,
-  suffix?: string
 ) {
   data.forEach((row: any) => {
     const array = [];
 
     for (let i = 0; i < 9; i++) {
-      const fieldName = `${prefix}${i}${suffix}`;
+      const fieldName = `${prefix}${i}`;
 
       if (row[fieldName] === undefined) continue;
       
@@ -21,15 +20,14 @@ export function convertRepetitivesFields(
 }
 
 export function convertAllRepetitivesFields(data: any) {
-  convertRepetitivesFields(data, "stats_mods", "stats_mod", "_id");
-  convertRepetitivesFields(data, "summoners", "summoner", "_id");
-  convertRepetitivesFields(data, "runes", "rune", "_id");
-  convertRepetitivesFields(data, "items", "item", "_id");
-  convertRepetitivesFields(data, "start_items", "start_item", "_id");
+  convertRepetitivesFields(data, "statsMods", "statsModId");
+  convertRepetitivesFields(data, "summoners", "summonerId");
+  convertRepetitivesFields(data, "runes", "runeId");
+  convertRepetitivesFields(data, "items", "itemId");
+  convertRepetitivesFields(data, "start_items", "startItemId");
   convertRepetitivesFields(
     data,
-    "completed_items",
-    "completed_item",
-    "_id"
+    "completedItems",
+    "completedItemId",
   );
 }

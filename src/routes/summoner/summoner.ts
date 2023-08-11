@@ -9,6 +9,7 @@ import {
   updateAccountInDB,
   returnStoredAccount,
   returnMatches,
+  updateGameInDB,
 } from "./middlewares";
 import { getMatches } from "./middlewares/getMatches";
 
@@ -26,6 +27,6 @@ summoner.get(
   returnStoredAccount
 );
 
-summoner.get("/matches/:regionCode/:puuid", convertRegion, getMatches, returnMatches);
+summoner.get("/matches/:regionCode/:puuid", convertRegion, getMatches, updateGameInDB, returnMatches);
 
 export { summoner };

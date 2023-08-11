@@ -6,3 +6,4 @@ export * from "./convertRegion";
 export * from "./getStoredAccount";
 export * from "./verifParams";
 export * from "./updateAccountInDB";
+export * from "./updateGameInDB";

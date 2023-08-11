@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Account, AccountType, AccountTypeDB } from "../../../database/models";
+import { Account, AccountType } from "../../../database/models";
 
 export async function updateAccountInDB(
   _: Request,
@@ -39,13 +39,13 @@ export async function updateAccountInDB(
 
 function checkChanges(
   updatedAccount: AccountType,
-  storedAccount: AccountTypeDB
+  storedAccount: AccountType
 ) {
   const { name, profileIconId, summonerLevel, tier, rank, lp, games } =
     updatedAccount;
   const {
     name: storedName,
-    profile_icon_id: storedProfileIconId,
+    profileIconId: storedProfileIconId,
     level: storedLevel,
     grade: storedGrade,
     tier: storedTier,

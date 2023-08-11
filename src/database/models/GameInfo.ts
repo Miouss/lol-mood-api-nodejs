@@ -1,4 +1,4 @@
-import { insertInto } from "../helpers";
+import { insertInto, select } from "../helpers";
 import { convertAllRepetitivesFields, executeQuery } from "../utils";
 
 export class GameInfo {
@@ -12,17 +12,18 @@ export class GameInfo {
     account: "account",
   };
 
-  public static async get(gameInfoId: number) {
-    const query = `SELECT * FROM ${this.table} WHERE game_id = ${gameInfoId}`;
+  public static async get(gameInfoId: string) {
+    const query = select("*").from(this.table).where({ gameId: gameInfoId });
 
     const result = await executeQuery(query, "getGameInfo");
-    console.log(result);
+
+    convertAllRepetitivesFields(result);
+
     return result;
   }
 
   public static async set(data: Data) {
-    const query = insertInto(
-      this.table).values(
+    const query = insertInto(this.table).values(
       data as unknown as Record<string, string | number>
     );
 
@@ -30,7 +31,13 @@ export class GameInfo {
   }
 
   public static async getChampStats(champName: string) {
-    const query = `SELECT * FROM ${this.table} INNER JOIN ${this.tables.champ} ON ${this.table}.champ_id = ${this.tables.champ}.id WHERE ${this.tables.champ}.name = "${champName}"`;
+    const query = select("*")
+      .from(this.table)
+      .innerJoin(
+        `${this.tables.champ} ON ${this.table}.champ_id = ${this.tables.champ}.id`
+      )
+      .where({ [`${this.tables.champ}.name`]: champName });
+
     const result = await executeQuery(query, "getChampStats");
     if (!result) return;
 
@@ -40,69 +47,56 @@ export class GameInfo {
   }
 }
 
-interface ChampStats {
-  patch: string;
-  game_id: number;
-  lane: string;
-  positioning_id: number;
-  skill_order: string;
-  evolves_order: string;
-  win: boolean;
-  kills: number;
-  deaths: number;
-  assists: number;
-}
-
 interface Data {
-  game_id: number;
-  account_id: number;
-  champ_id: number;
-  positioning_id: number;
+  gameId: number;
+  accountId: number;
+  champId: number;
+  positioningId: number;
 
   win: boolean;
   kills: number | null;
   deaths: number | null;
   assists: number | null;
   multikills: boolean | null;
-  skills_order: string | null;
-  evolves_order: string | null;
+  skillsOrder: string | null;
+  evolvesOrder: string | null;
 
-  primary_style_id: number;
-  sub_style_id: number;
-  perk_id: number;
+  primaryStyleId: number;
+  subStyleId: number;
+  perkId: number;
 
-  rune0_id: number;
-  rune1_id: number;
-  rune2_id: number;
-  rune3_id: number;
-  rune4_id: number;
+  runeId0: number;
+  runeId1: number;
+  runeId2: number;
+  runeId3: number;
+  runeId4: number;
 
-  stats_mod0_id: number;
-  stats_mod1_id: number;
-  stats_mod2_id: number;
+  statsModId0: number;
+  statsModId1: number;
+  statsModId2: number;
 
-  summoner1_id: number;
-  summoner2_id: number;
+  summonerId0: number;
+  summonerId1: number;
 
-  item0_id: number | null;
-  item1_id: number | null;
-  item2_id: number | null;
-  item3_id: number | null;
-  item4_id: number | null;
-  item5_id: number | null;
+  itemId0: number | null;
+  itemId1: number | null;
+  itemId2: number | null;
+  itemId3: number | null;
+  itemId4: number | null;
+  itemId5: number | null;
 
-  start_item0_id: number | null;
-  start_item1_id: number | null;
-  start_item2_id: number | null;
-  start_item3_id: number | null;
-  start_item4_id: number | null;
-  start_item5_id: number | null;
-  start_item6_id: number | null;
+  startItemId0: number | null;
+  startItemId1: number | null;
+  startItemId2: number | null;
+  startItemId3: number | null;
+  startItemId4: number | null;
+  startItemId5: number | null;
+  startItemId6: number | null;
 
-  completed_item0_id: number | null;
-  completed_item1_id: number | null;
-  completed_item2_id: number | null;
-  completed_item3_id: number | null;
-  completed_item4_id: number | null;
-  completed_item5_id: number | null;
+  completedItemId0: number | null;
+  completedItemId1: number | null;
+  completedItemId2: number | null;
+  completedItemId3: number | null;
+  completedItemId4: number | null;
+  completedItemId5: number | null;
 }

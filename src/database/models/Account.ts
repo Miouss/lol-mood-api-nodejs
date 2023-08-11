@@ -38,21 +38,12 @@ export class Account {
 export interface AccountType {
   puuid: string;
   name: string;
-  summonerLevel: number;
+  id?: string;
+  summonerLevel?: number;
+  level?: number;
   profileIconId: number;
-  rank: string;
-  tier: string;
-  lp: number;
-  games: number;
-  wins: number;
-}
-
-export interface AccountTypeDB {
-  puuid: string;
-  name: string;
-  level: number;
-  profile_icon_id: number;
-  grade: string;
+  rank?: string;
+  grade?: string;
   tier: string;
   lp: number;
   games: number;
@@ -60,15 +51,12 @@ export interface AccountTypeDB {
 }
 
 function convertDataForDB(data: AccountType) {
-  return {
-    puuid: data.puuid,
-    name: data.name,
-    level: data.summonerLevel,
-    profile_icon_id: data.profileIconId,
-    grade: data.rank,
-    tier: data.tier,
-    lp: data.lp,
-    games: data.games,
-    wins: data.wins,
-  };
+  data.grade = data.rank;
+  data.level = data.summonerLevel;
+
+  delete data.rank;
+  delete data.summonerLevel;
+  delete data.id;
+
+  return data as unknown as Record<string, string | number>;
 }

@@ -13,7 +13,7 @@ export async function executeQuery(query: string, name?: string) {
     console.log(`Query ${name} executed successfully.`);
     return rows;
   } catch (err: any) {
-    console.error(`Error executing query ${name}:`, err.message);
+    console.error(`Error executing\n\n${query} \n\n ${name}:`, err.message);
 
     return null;
   }

@@ -8,14 +8,10 @@ export class Game {
     return await getRowId(this.table, { identifier: gameId });
   }
 
-  public static async set(gameId: string, patch: string, duration: string) {
-    const values = {
+  public static async set(gameId: string) {
+    const query = insertInto(this.table).values({
       identifier: gameId,
-      patch,
-      duration,
-    };
-
-    const query = insertInto(this.table).values(values);
+    });
 
     await executeQuery(query, "setGame");
   }

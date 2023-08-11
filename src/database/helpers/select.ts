@@ -5,6 +5,10 @@ export function select(...columns: string[]) {
     from: (table: string) => ({
       where: (whereData: Record<string, string>) =>
         selectFromWhere(columns, table, whereData),
+      innerJoin: (innerJoin: string) => ({
+        where: (whereData: Record<string, string>) =>
+          selectFromWhere(columns, table, whereData, innerJoin),
+      }),
     }),
   };
 }
@@ -16,6 +20,10 @@ function selectFromWhere(
   innerJoin?: string
 ) {
   const where = whereQuery(whereData);
+
+  if(!innerJoin){
+    innerJoin = "";
+  }
 
   return `SELECT ${columns.join(
     ", "
