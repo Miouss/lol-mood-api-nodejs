@@ -10,8 +10,11 @@ import {
   returnStoredAccount,
   returnMatches,
   updateGameInDB,
+  retrieveMatchInfo,
+  getMatches,
+  collectMatchInfoData,
+  collectMatchStats,
 } from "./middlewares";
-import { getMatches } from "./middlewares/getMatches";
 
 const summoner = Router();
 
@@ -27,6 +30,15 @@ summoner.get(
   returnStoredAccount
 );
 
-summoner.get("/matches/:regionCode/:puuid", convertRegion, getMatches, updateGameInDB, returnMatches);
+summoner.get(
+  "/matches/:regionCode/:puuid",
+  convertRegion,
+  getMatches,
+  updateGameInDB,
+  retrieveMatchInfo,
+  collectMatchInfoData,
+  collectMatchStats,
+  returnMatches
+);
 
 export { summoner };

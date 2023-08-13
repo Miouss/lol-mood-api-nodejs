@@ -22,7 +22,7 @@ export class GameInfo {
     return result;
   }
 
-  public static async set(data: Data) {
+  public static async set(data: MatchData) {
     const query = insertInto(this.table).values(
       data as unknown as Record<string, string | number>
     );
@@ -42,12 +42,10 @@ export class GameInfo {
     if (!result) return;
 
     convertAllRepetitivesFields(result);
-
-    console.log((result as any)[0]);
   }
 }
 
-interface Data {
+export interface MatchData {
   gameId: number;
   accountId: number;
   champId: number;

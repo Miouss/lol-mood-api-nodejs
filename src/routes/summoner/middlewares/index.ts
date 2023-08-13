@@ -7,3 +7,7 @@ export * from "./getStoredAccount";
 export * from "./verifParams";
 export * from "./updateAccountInDB";
 export * from "./updateGameInDB";
+export * from "./retrieveMatchInfo";
+export * from "./getMatches";
+export * from "./collectMatchInfoData";
+export * from "./collectMatchStats";

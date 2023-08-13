@@ -9,18 +9,20 @@ export async function updateGameInDB(
   try {
     const { matches } = res.locals;
 
-    const gameHistory: any[] = [];
-
     if (!matches) throw new Error("No matches found for this account");
-    matches.push("test");
 
-    for (const match of matches) {
-      const isGameStored = await Game.exists(match);
+    let matchesNotStored: any = [];
 
-      if (!isGameStored) {
-        await Game.set(match);
+    for (const matchId of matches) {
+      const isMatchStored = await Game.exists(matchId);
+
+      if (!isMatchStored) {
+        //await Game.set(matchId);
+        matchesNotStored[matchId] = [];
       }
     }
+
+    res.locals.matchesNotStored = matchesNotStored;
 
     next();
   } catch (err) {
