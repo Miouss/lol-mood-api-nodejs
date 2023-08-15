@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { Game, GameInfo } from "../../../database/models";
+import { Game, GameInfo } from "../../../../database/models";
 
-export async function updateGameInDB(
+export async function updateGame(
   _: Request,
   res: Response,
   next: NextFunction

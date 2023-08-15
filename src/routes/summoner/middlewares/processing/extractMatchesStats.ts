@@ -1,26 +1,23 @@
 import { Request, Response, NextFunction } from "express";
-import { riot } from "../../utils/requests";
+import { riot } from "../../../utils/requests";
 import {
   createParticipantsStats,
   isEventTypeHandled,
   participant,
   EventType,
-} from "../utils";
+} from "../../utils";
 
-export async function collectMatchStats(
+export async function extractMatchesStats(
   _: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const { region, matchesInfosSortedByMatch } = res.locals;
+    const { matchesStats } = res.locals;
+
     let participantsStatsByMatch: any = {};
 
-    for (const matchId of Object.keys(matchesInfosSortedByMatch)) {
-      const matchStats: any = await riot(region).getMatchStatsByMatchId(
-        matchId
-      );
-
+    matchesStats.forEach((matchStats: any) => {
       const participantsStats = createParticipantsStats(
         matchStats.info.participants
       );
@@ -37,8 +34,8 @@ export async function collectMatchStats(
         }
       }
 
-      participantsStatsByMatch[matchId] = participantsStats;
-    }
+      participantsStatsByMatch[matchStats.metadata.matchId] = participantsStats;
+    });
 
     res.locals.participantsStatsByMatch = participantsStatsByMatch;
 

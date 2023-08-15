@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-export async function collectMatchInfoData(
+export async function extractMatchesInfos(
   _: Request,
   res: Response,
   next: NextFunction
@@ -9,32 +9,21 @@ export async function collectMatchInfoData(
     const { matches } = res.locals;
 
     if (!matches) return next();
-    
+
     let matchesInfosSortedByMatch: any = {};
-    
-    for(const [matchId, matchData] of Object.entries(matches)) {
+
+    for (const [matchId, matchData] of Object.entries(matches)) {
       const matchInfosSorted: any[] = [];
 
       (matchData as any).info.participants.forEach((participant: any) => {
-        const itemsIds = convertRepetitivesFields(participant, 0, "item");
-        const summonersIds = convertRepetitivesFields(
-          participant,
-          1,
-          "summoner",
-          "Id"
-        );
+        const multipleData = multipleDataObj(participant);
 
         const [primaryStyle, subStyle] = participant.perks.styles;
-        const runesTree = primaryStyle.selections.concat(subStyle.selections);
-
-        const runesIds = runesTree.map((rune: any) => rune.perk);
 
         const stylesIds = {
           primary: primaryStyle.style,
           sub: subStyle.style,
         };
-
-        const statsMods = Object.keys(participant.perks.statPerks);
 
         const {
           gameId,
@@ -47,7 +36,7 @@ export async function collectMatchInfoData(
           deaths,
           assists,
         } = participant;
-       
+
         matchInfosSorted.push({
           gameId,
           puuid,
@@ -58,16 +47,13 @@ export async function collectMatchInfoData(
           kills,
           deaths,
           assists,
-          ...convertArrayToObj(itemsIds, "itemId"),
-          ...convertArrayToObj(summonersIds, "summonerId"),
-          ...convertArrayToObj(runesIds, "runeId"),
           stylesIds,
-          ...convertArrayToObj(statsMods, "statsModId"),
+          ...convertDataForDB(multipleData),
         });
       });
 
       matchesInfosSortedByMatch[matchId] = matchInfosSorted;
-    };
+    }
 
     res.locals.matchesInfosSortedByMatch = matchesInfosSortedByMatch;
 
@@ -76,6 +62,41 @@ export async function collectMatchInfoData(
     console.error(err);
     next(err);
   }
+}
+function multipleDataObj(participant: any) {
+  const createData = (data: any, field: string) => ({
+    data,
+    field,
+  });
+
+  const extractRunes = () => {
+    const [primaryStyle, subStyle] = participant.perks.styles;
+    const runesTree = primaryStyle.selections.concat(subStyle.selections);
+
+    return createData(
+      runesTree.map((rune: any) => rune.perk),
+      "runeId"
+    );
+  };
+
+  const extractItems = () =>
+    createData(convertRepetitivesFields(participant, 0, "item"), "itemId");
+
+  const extractSummoners = () =>
+    createData(
+      convertRepetitivesFields(participant, 1, "summoner", "Id"),
+      "summonerId"
+    );
+
+  const extractStatsMods = () =>
+    createData(Object.keys(participant.perks.statPerks), "statsModId");
+
+  return [
+    extractItems(),
+    extractStatsMods(),
+    extractSummoners(),
+    extractRunes(),
+  ];
 }
 
 function convertRepetitivesFields(
@@ -101,6 +122,19 @@ function convertRepetitivesFields(
   return fields;
 }
 
+function convertDataForDB(multipleData: DataObj[]) {
+  let dataObj: any = {};
+
+  multipleData.forEach((singleData) => {
+    dataObj = {
+      ...dataObj,
+      ...convertArrayToObj(singleData.data, singleData.field),
+    };
+  });
+
+  return dataObj;
+}
+
 function convertArrayToObj(array: any[], key: string) {
   const obj: any = {};
 
@@ -112,4 +146,9 @@ function convertArrayToObj(array: any[], key: string) {
   }
 
   return obj;
+}
+
+interface DataObj {
+  data: any[];
+  field: string;
 }

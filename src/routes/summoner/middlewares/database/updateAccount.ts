@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { Account, AccountType } from "../../../database/models";
+import { Account, AccountType } from "../../../../database/models";
 
-export async function updateAccountInDB(
+export async function updateAccount(
   _: Request,
   res: Response,
   next: NextFunction

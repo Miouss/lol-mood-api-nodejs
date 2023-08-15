@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { riot } from "../../utils/requests";
+import { riot } from "../../../utils/requests";
 
-export async function getUpdatedAccount(
+export async function retrieveUpdatedAccount(
   req: Request,
   res: Response,
   next: NextFunction

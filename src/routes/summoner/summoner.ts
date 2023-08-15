@@ -3,17 +3,18 @@ import { Router } from "express";
 import {
   verifParams,
   convertRegion,
-  getUpdatedAccount,
-  getUpdatedRank,
+  retrieveUpdatedAccount,
+  retrieveUpdatedRank,
   getStoredAccount,
-  updateAccountInDB,
+  updateAccount,
   returnStoredAccount,
   returnMatches,
-  updateGameInDB,
+  updateGame,
   retrieveMatchInfo,
-  getMatches,
-  collectMatchInfoData,
-  collectMatchStats,
+  retrieveMatches,
+  extractMatchesInfos,
+  retrieveMatchesStats,
+  extractMatchesStats,
 } from "./middlewares";
 
 const summoner = Router();
@@ -22,10 +23,10 @@ summoner.get(
   "/account/:regionCode/:summonerName",
   verifParams,
   convertRegion,
-  getUpdatedAccount,
-  getUpdatedRank,
+  retrieveUpdatedAccount,
+  retrieveUpdatedRank,
   getStoredAccount,
-  updateAccountInDB,
+  updateAccount,
   getStoredAccount,
   returnStoredAccount
 );
@@ -33,11 +34,12 @@ summoner.get(
 summoner.get(
   "/matches/:regionCode/:puuid",
   convertRegion,
-  getMatches,
-  updateGameInDB,
+  retrieveMatches,
+  updateGame,
   retrieveMatchInfo,
-  collectMatchInfoData,
-  collectMatchStats,
+  extractMatchesInfos,
+  retrieveMatchesStats,
+  extractMatchesStats,
   returnMatches
 );
 

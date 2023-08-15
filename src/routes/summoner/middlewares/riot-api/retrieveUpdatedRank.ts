@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
-import { riot } from "../../utils/requests";
+import { riot } from "../../../utils/requests";
 
-export async function getUpdatedRank(
+export async function retrieveUpdatedRank(
   _: any,
   res: Response,
   next: NextFunction

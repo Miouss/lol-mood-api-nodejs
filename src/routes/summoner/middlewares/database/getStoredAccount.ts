@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import { Account } from "../../../database/models";
+import { Account } from "../../../../database/models";
 
 export async function getStoredAccount(
   _: any,

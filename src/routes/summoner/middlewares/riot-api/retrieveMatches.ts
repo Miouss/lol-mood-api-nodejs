@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
-import { riot } from "../../utils/requests";
+import { riot } from "../../../utils/requests";
 
-export async function getMatches(
+export async function retrieveMatches(
   req: any,
   res: Response,
   next: NextFunction
