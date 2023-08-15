@@ -1,46 +1,49 @@
 import { Router } from "express";
 
 import {
-  verifParams,
+  checkParams,
   convertRegion,
+  mergeInfosWithStats,
+  extractMatchesInfos,
+  extractMatchesStats,
   retrieveUpdatedAccount,
   retrieveUpdatedRank,
+  retrieveMatchesInfos,
+  retrieveMatches,
   getStoredAccount,
   updateAccount,
-  returnStoredAccount,
-  returnMatches,
   updateGame,
-  retrieveMatchInfo,
-  retrieveMatches,
-  extractMatchesInfos,
+  sendStoredAccount,
+  sendMatches,
   retrieveMatchesStats,
-  extractMatchesStats,
 } from "./middlewares";
 
 const summoner = Router();
 
 summoner.get(
   "/account/:regionCode/:summonerName",
-  verifParams,
+  checkParams,
   convertRegion,
   retrieveUpdatedAccount,
   retrieveUpdatedRank,
   getStoredAccount,
   updateAccount,
   getStoredAccount,
-  returnStoredAccount
+  sendStoredAccount
 );
 
 summoner.get(
   "/matches/:regionCode/:puuid",
+  checkParams,
   convertRegion,
   retrieveMatches,
   updateGame,
-  retrieveMatchInfo,
+  retrieveMatchesInfos,
   extractMatchesInfos,
   retrieveMatchesStats,
   extractMatchesStats,
-  returnMatches
+  mergeInfosWithStats,
+  sendMatches
 );
 
 export { summoner };

@@ -1,11 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { riot } from "../../../utils/requests";
-import {
-  createParticipantsStats,
-  isEventTypeHandled,
-  participant,
-  EventType,
-} from "../../utils";
 
 export async function retrieveMatchesStats(
   _: Request,
@@ -13,11 +7,11 @@ export async function retrieveMatchesStats(
   next: NextFunction
 ) {
   try {
-    const { region, matchesInfosSortedByMatch } = res.locals;
+    const { region, participantsInfosByMatch } = res.locals;
 
     let matchesStats = [];
 
-    for (const matchId of Object.keys(matchesInfosSortedByMatch)) {
+    for (const matchId of Object.keys(participantsInfosByMatch)) {
       const matchStats: any = await riot(region).getMatchStatsByMatchId(
         matchId
       );

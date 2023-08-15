@@ -8,7 +8,7 @@ export function participant(participantStats: ParticipantStatsType) {
 
     if (!isItem) return;
 
-    const { name, description, into } = (itemJSON as any).data[event.itemId];
+    const { description, into } = (itemJSON as any).data[event.itemId];
 
     const isNearBeginningOfGame = event.timestamp < 60000;
 
@@ -17,11 +17,10 @@ export function participant(participantStats: ParticipantStatsType) {
 
     const isStartingItem = total <= 500 && isNearBeginningOfGame;
     const isCompletedItem = isMythicItem || isLegendaryItem;
-    
-    if(!isStartingItem && !isCompletedItem) return;
+
+    if (!isStartingItem && !isCompletedItem) return;
 
     participantStats.items.push({
-      name,
       itemId: event.itemId,
       type: isStartingItem ? "starting" : "completed",
     });
@@ -77,13 +76,12 @@ interface ParticipantsWithPuuidAndIdType {
   participantId: number;
 }
 
-interface ItemDetails {
-  name: string;
+export interface ItemDetails {
   itemId: number;
   type: "starting" | "completed";
 }
 
-interface ParticipantStatsType {
+export interface ParticipantStatsType {
   items: ItemDetails[];
   skillsOrder: string;
   evolvesOrder: string;

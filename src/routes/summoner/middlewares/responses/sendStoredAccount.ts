@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 
-export function returnStoredAccount(_: any, res: Response, next: NextFunction) {
+export function sendStoredAccount(_: any, res: Response, next: NextFunction) {
   try {
     const { storedAccount } = res.locals;
     

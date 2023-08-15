@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { riot } from "../../../utils/requests";
 
-export async function retrieveMatchInfo(
+export async function retrieveMatchesInfos(
   _: Request,
   res: Response,
   next: NextFunction
@@ -11,15 +11,15 @@ export async function retrieveMatchInfo(
 
     if (!matchesNotStored) return next();
 
-    let matches: any = {};
+    let matchesInfos: any = {};
 
     for (const matchId in matchesNotStored) {
       const gameInfo = await riot(region).getMatchInfoByMatchId(matchId);
 
-      matches[matchId] = gameInfo;
+      matchesInfos[matchId] = gameInfo;
     }
     
-    res.locals.matches = matches;
+    res.locals.matchesInfos = matchesInfos;
 
     next();
   } catch (err) {

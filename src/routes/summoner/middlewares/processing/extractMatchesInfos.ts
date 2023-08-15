@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { arrayToKeyedObject } from "../../utils";
 
 export async function extractMatchesInfos(
   _: Request,
@@ -6,24 +7,19 @@ export async function extractMatchesInfos(
   next: NextFunction
 ) {
   try {
-    const { matches } = res.locals;
+    const { matchesInfos } = res.locals;
 
-    if (!matches) return next();
+    if (!matchesInfos) return next();
 
-    let matchesInfosSortedByMatch: any = {};
+    let participantsInfosByMatch: any = {};
 
-    for (const [matchId, matchData] of Object.entries(matches)) {
+    for (const [matchId, matchData] of Object.entries(matchesInfos)) {
       const matchInfosSorted: any[] = [];
 
       (matchData as any).info.participants.forEach((participant: any) => {
         const multipleData = multipleDataObj(participant);
 
         const [primaryStyle, subStyle] = participant.perks.styles;
-
-        const stylesIds = {
-          primary: primaryStyle.style,
-          sub: subStyle.style,
-        };
 
         const {
           gameId,
@@ -47,15 +43,17 @@ export async function extractMatchesInfos(
           kills,
           deaths,
           assists,
-          stylesIds,
+          primaryStyleId: primaryStyle.style,
+          subStyleId: subStyle.style,
+          perkId: primaryStyle.selections[0].perk,
           ...convertDataForDB(multipleData),
         });
       });
 
-      matchesInfosSortedByMatch[matchId] = matchInfosSorted;
+      participantsInfosByMatch[matchId] = matchInfosSorted;
     }
 
-    res.locals.matchesInfosSortedByMatch = matchesInfosSortedByMatch;
+    res.locals.participantsInfosByMatch = participantsInfosByMatch;
 
     next();
   } catch (err) {
@@ -72,6 +70,7 @@ function multipleDataObj(participant: any) {
   const extractRunes = () => {
     const [primaryStyle, subStyle] = participant.perks.styles;
     const runesTree = primaryStyle.selections.concat(subStyle.selections);
+    runesTree.shift();
 
     return createData(
       runesTree.map((rune: any) => rune.perk),
@@ -128,24 +127,11 @@ function convertDataForDB(multipleData: DataObj[]) {
   multipleData.forEach((singleData) => {
     dataObj = {
       ...dataObj,
-      ...convertArrayToObj(singleData.data, singleData.field),
+      ...arrayToKeyedObject(singleData.data, singleData.field),
     };
   });
 
   return dataObj;
-}
-
-function convertArrayToObj(array: any[], key: string) {
-  const obj: any = {};
-
-  let i = 0;
-
-  for (const item of array) {
-    obj[`${key}${i}`] = item;
-    i++;
-  }
-
-  return obj;
 }
 
 interface DataObj {
