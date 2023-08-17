@@ -4,7 +4,7 @@ import { executeQuery, getRowId, isStored } from "../utils";
 export class Account {
   private static table = "account";
 
-  public static async create(data: AccountType) {
+  public static async create(data: StoredAccount) {
     const query = insertInto(this.table).values(
       convertDataForDB(data) as unknown as Record<string, string | number>
     );
@@ -26,7 +26,7 @@ export class Account {
     return await isStored(this.table, { puuid });
   }
 
-  public static async update(data: AccountType) {
+  public static async update(data: StoredAccount) {
     const query = updateSetWhere(this.table, convertDataForDB(data), {
       puuid: data.puuid,
     });
@@ -35,7 +35,7 @@ export class Account {
   }
 }
 
-export interface AccountType {
+export interface StoredAccount {
   puuid: string;
   name: string;
   id?: string;
@@ -50,7 +50,7 @@ export interface AccountType {
   wins: number;
 }
 
-function convertDataForDB(data: AccountType) {
+function convertDataForDB(data: StoredAccount) {
   data.grade = data.rank;
   data.level = data.summonerLevel;
 

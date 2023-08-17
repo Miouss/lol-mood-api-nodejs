@@ -1,13 +1,14 @@
-import { Response, NextFunction } from "express";
+import { Response,NextFunction } from "express";
 import { Account } from "../../../../database/models";
+import { AccountLocals } from "../../../types";
 
 export async function getStoredAccount(
   _: any,
-  res: Response,
+  res: Response<any, AccountLocals>,
   next: NextFunction
 ) {
   try {
-    const { puuid } = res.locals.updatedAccount;
+    const { puuid } = res.locals.updatedAccountWithRank;
 
     const isStored = await Account.exists(puuid);
 
@@ -24,7 +25,6 @@ export async function getStoredAccount(
 
     next();
   } catch (err) {
-    console.error(err);
     next(err);
   }
 }

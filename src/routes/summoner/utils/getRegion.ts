@@ -1,23 +1,52 @@
-const regionMap = {
-  eune: { host: "eun1", region: "europe" },
-  euw: { host: "euw1", region: "europe" },
-  na: { host: "na1", region: "americas" },
-  br: { host: "br1", region: "americas" },
-  lan: { host: "la1", region: "asia" },
-  las: { host: "la2", region: "asia" },
-  kr: { host: "kr", region: "asia" },
-  ru: { host: "ru", region: "asia" },
-  jp: { host: "jp1", region: "asia" },
-};
-
-export function getRegion(regionCode: RegionCodeType) {
+export function getRegion(regionCode: string) {
   const regionInfo = regionMap[regionCode];
 
-  if (!regionInfo) {
-    throw new Error("Invalid region code");
-  }
+  if (!regionInfo) throw new Error("Invalid region code");
 
-  return regionInfo;
+  return {
+    host: regionInfo.host,
+    region: regionInfo.region,
+  };
 }
 
-type RegionCodeType = keyof typeof regionMap;
+enum Host {
+  EUNE = "eun1",
+  EUW = "euw1",
+  NA = "na1",
+  BR = "br1",
+  LAN = "la1",
+  LAS = "la2",
+  KR = "kr",
+  RU = "ru",
+  JP = "jp1",
+}
+
+enum Region {
+  EU = "europe",
+  NA = "americas",
+  ASIA = "asia",
+}
+
+type RegionInfo = {
+  host: Host;
+  region: Region;
+};
+
+const regionMap: Record<string, RegionInfo> = {
+  eune: regionObj(Host.EUNE, Region.EU),
+  euw: regionObj(Host.EUW, Region.EU),
+  na: regionObj(Host.NA, Region.NA),
+  br: regionObj(Host.BR, Region.NA),
+  lan: regionObj(Host.LAN, Region.ASIA),
+  las: regionObj(Host.LAS, Region.ASIA),
+  kr: regionObj(Host.KR, Region.ASIA),
+  ru: regionObj(Host.RU, Region.ASIA),
+  jp: regionObj(Host.JP, Region.ASIA),
+};
+
+function regionObj(host: Host, region: Region) {
+  return {
+    host,
+    region,
+  };
+}

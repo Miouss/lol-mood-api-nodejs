@@ -1,12 +1,16 @@
 import { Response, NextFunction } from "express";
+import { AccountLocals } from "../../../types";
 
-export function sendStoredAccount(_: any, res: Response, next: NextFunction) {
+export function sendStoredAccount(
+  _: any,
+  res: Response<any, AccountLocals>,
+  next: NextFunction
+) {
   try {
-    const { storedAccount } = res.locals;
-    
-    res.status(200).json(storedAccount);
+    const { storedAccount, test } = res.locals;
+
+    res.status(200).json({ test, storedAccount });
   } catch (err) {
-    console.error(err);
     next(err);
   }
 }

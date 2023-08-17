@@ -1,47 +1,50 @@
 import { Request, Response, NextFunction } from "express";
-import { riot } from "../../../utils/requests";
 import {
   createParticipantsStats,
   isEventTypeHandled,
   participant,
   EventType,
 } from "../../utils";
+import {
+  MatchesLocals,
+  ParticipantStatsTypeByMatch,
+} from "../../../types";
 
-export async function extractMatchesStats(
+export async function extractMatchesTimelines(
   _: Request,
-  res: Response,
+  res: Response<any, MatchesLocals>,
   next: NextFunction
 ) {
   try {
-    const { matchesStats } = res.locals;
+    const { matchesTimelines } = res.locals;
 
-    let participantsStatsByMatch: any = {};
+    let participantsStatsByMatch: ParticipantStatsTypeByMatch = {};
 
-    matchesStats.forEach((matchStats: any) => {
+    matchesTimelines.forEach((matchTimeline) => {
       const participantsStats = createParticipantsStats(
-        matchStats.info.participants
+        matchTimeline.info.participants!
       );
 
-      for (const frame of matchStats.info.frames) {
+      for (const frame of matchTimeline.info.frames) {
         for (const event of frame.events) {
           if (!isEventTypeHandled(event.type)) continue;
 
           const { type, participantId } = event;
 
-          const id = participantId - 1;
+          const id = participantId! - 1;
 
           participant(participantsStats[id]).event(event)[type as EventType]();
         }
       }
 
-      participantsStatsByMatch[matchStats.metadata.matchId] = participantsStats;
+      participantsStatsByMatch[matchTimeline.metadata.matchId] =
+        participantsStats;
     });
 
     res.locals.participantsStatsByMatch = participantsStatsByMatch;
 
     next();
   } catch (err) {
-    console.error(err);
     next(err);
   }
 }

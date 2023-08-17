@@ -1,70 +1,129 @@
 import { Request, Response, NextFunction } from "express";
 import { arrayToKeyedObject } from "../../utils";
+import {
+  AssetIdsByMatch,
+  AssetObj,
+  MatchesLocals,
+  ParticipantAssetIds,
+  ParticipantInfos,
+  ParticipantInfosByMatch,
+} from "../../../types";
 
 export async function extractMatchesInfos(
   _: Request,
-  res: Response,
+  res: Response<any, MatchesLocals>,
   next: NextFunction
 ) {
   try {
-    const { matchesInfos } = res.locals;
+    const { matchesInfosByMatch } = res.locals;
 
-    if (!matchesInfos) return next();
+    if (!matchesInfosByMatch) return next();
 
-    let participantsInfosByMatch: any = {};
+    let participantsInfosByMatch: ParticipantInfosByMatch = {};
+    let assetIdsByMatch: AssetIdsByMatch = {};
+    const champsNames: string[] = [];
+    const uniqueAssetIds: Array<string | number> = [];
 
-    for (const [matchId, matchData] of Object.entries(matchesInfos)) {
-      const matchInfosSorted: any[] = [];
+    for (const [matchId, matchData] of Object.entries(matchesInfosByMatch)) {
+      const participantInfos: ParticipantInfos[] = [];
+      const assetIds: ParticipantAssetIds[] = [];
 
-      (matchData as any).info.participants.forEach((participant: any) => {
-        const multipleData = multipleDataObj(participant);
+      ((matchData as any).info.participants as any[]).forEach(
+        (participant: any, index) => {
+          const repetitiveFields = repetitiveFieldsObj(participant);
 
-        const [primaryStyle, subStyle] = participant.perks.styles;
+          fillParticipantInfos(participant, participantInfos);
+          filterUniqueChampionsNames(champsNames, participant.championName);
+          fillAssetIds(participant, assetIds, repetitiveFields, index);
+        }
+      );
 
-        const {
-          gameId,
-          puuid,
-          championId,
-          championName,
-          lane,
-          win,
-          kills,
-          deaths,
-          assists,
-        } = participant;
+      participantsInfosByMatch[matchId] = participantInfos;
+      assetIdsByMatch[matchId] = assetIds;
 
-        matchInfosSorted.push({
-          gameId,
-          puuid,
-          championId,
-          championName,
-          lane,
-          win,
-          kills,
-          deaths,
-          assists,
-          primaryStyleId: primaryStyle.style,
-          subStyleId: subStyle.style,
-          perkId: primaryStyle.selections[0].perk,
-          ...convertDataForDB(multipleData),
-        });
-      });
-
-      participantsInfosByMatch[matchId] = matchInfosSorted;
+      filterUniqueAssetIds(assetIds, uniqueAssetIds);
     }
 
     res.locals.participantsInfosByMatch = participantsInfosByMatch;
+    res.locals.assetIdsByMatch = assetIdsByMatch;
 
     next();
   } catch (err) {
-    console.error(err);
     next(err);
   }
 }
-function multipleDataObj(participant: any) {
-  const createData = (data: any, field: string) => ({
+
+function filterUniqueChampionsNames(
+  champsNames: string[],
+  championName: string
+) {
+  const isChampNameUnknown = !champsNames.includes(championName);
+
+  if (isChampNameUnknown) champsNames.push(championName);
+}
+
+function filterUniqueAssetIds(
+  assetIds: ParticipantAssetIds[],
+  uniqueAssetIds: Array<number | string>
+) {
+  assetIds.forEach(({ assets }) => {
+    assets.forEach(({ data }) => {
+      if (!uniqueAssetIds.includes(data)) uniqueAssetIds.push(data);
+    });
+  });
+}
+
+function fillParticipantInfos(participant: any, participantInfos: any) {
+  const { puuid, lane, win, kills, deaths, assists } = participant;
+
+  participantInfos.push({
+    puuid,
+    lane,
+    win,
+    kills,
+    deaths,
+    assists,
+  });
+}
+
+function fillAssetIds(
+  participant: any,
+  assetIds: ParticipantAssetIds[],
+  repetitiveFields: any,
+  index: number
+) {
+  const { puuid, perks } = participant;
+  const [primaryStyle, subStyle] = perks.styles;
+
+  assetIds.push({
+    puuid,
+    assets: [],
+  });
+
+  assetIds[index].assets.push(
+    assetObj(primaryStyle.style, "primaryStyleId"),
+    assetObj(subStyle.style, "subStyleId"),
+    assetObj(primaryStyle.selections[0].perk, "perkId")
+  );
+
+  const repetitiveAssetIds = convertRepetitiveFieldsForDB(repetitiveFields);
+
+  Object.entries(repetitiveAssetIds).forEach(([field, data]) => {
+    assetIds[index].assets.push(assetObj(data, field));
+  });
+}
+
+function assetObj(data: number | string, field: string): AssetObj {
+  return {
     data,
     field,
+  };
+}
+
+function repetitiveFieldsObj(participant: any): RepetitiveFieldObj[] {
+  const createData = (data: any, prefix: string) => ({
+    data,
+    prefix,
   });
 
   const extractRunes = () => {
@@ -103,38 +162,56 @@ function convertRepetitivesFields(
   startId: number,
   prefix: string,
   suffix: string = ""
-) {
-  let fieldFound = true;
-  let fields: any = [];
+): number[] {
+  let fields: number[] = [];
 
-  while (fieldFound) {
-    const value = origin[`${prefix}${startId}${suffix}`];
+  const itinerateField = (i: number) => origin[`${prefix}${i}${suffix}`];
 
-    if (value) {
-      fields.push(value);
-      startId++;
-    } else {
-      fieldFound = false;
-    }
+  for (let i = startId; itinerateField(i); i++) {
+    fields.push(itinerateField(i));
   }
 
   return fields;
 }
 
-function convertDataForDB(multipleData: DataObj[]) {
+function convertRepetitiveFieldsForDB(
+  repetitiveFields: RepetitiveFieldObj[]
+): RepetitiveFieldsForDB {
   let dataObj: any = {};
 
-  multipleData.forEach((singleData) => {
+  repetitiveFields.forEach((field) => {
     dataObj = {
       ...dataObj,
-      ...arrayToKeyedObject(singleData.data, singleData.field),
+      ...arrayToKeyedObject(field.data, field.prefix),
     };
   });
 
   return dataObj;
 }
 
-interface DataObj {
-  data: any[];
-  field: string;
+interface RepetitiveFieldObj {
+  data: number[] | StatMod[];
+  prefix: string;
+}
+
+type StatMod = "defense" | "flex" | "offense";
+
+interface RepetitiveFieldsForDB {
+  itemId0?: number;
+  itemId1?: number;
+  itemId2?: number;
+  itemId3?: number;
+  itemId4?: number;
+  itemId5?: number;
+  itemId6?: number;
+  statsModId0: StatMod;
+  statsModId1: StatMod;
+  statsModId2: StatMod;
+  summonerId0: number;
+  summonerId1: number;
+  runeId0: number;
+  runeId1: number;
+  runeId2: number;
+  runeId3: number;
+  runeId4: number;
 }

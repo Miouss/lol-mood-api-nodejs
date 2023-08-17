@@ -4,10 +4,11 @@ import {
   ItemDetails,
   arrayToKeyedObject,
 } from "../../utils";
+import { MatchesLocals } from "../../../types";
 
 export async function mergeInfosWithStats(
   _: any,
-  res: Response,
+  res: Response<any, MatchesLocals>,
   next: NextFunction
 ) {
   try {
@@ -43,6 +44,8 @@ export async function mergeInfosWithStats(
             ...participantInfo,
             ...startItemsIds,
             ...completedItemsIds,
+            evolvesOrder: participantStats.evolvesOrder,
+            skillsOrder: participantStats.skillsOrder,
           };
         }
       );
@@ -50,7 +53,6 @@ export async function mergeInfosWithStats(
 
     next();
   } catch (err) {
-    console.error(err);
     next(err);
   }
 }

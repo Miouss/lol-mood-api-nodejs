@@ -1,29 +1,30 @@
 import { Request, Response, NextFunction } from "express";
 import { riot } from "../../../utils/requests";
+import { MatchesLocals } from "../../../types";
 
-export async function retrieveMatchesStats(
+export async function getMatchesTimelines(
   _: Request,
-  res: Response,
+  res: Response<any, MatchesLocals>,
   next: NextFunction
 ) {
   try {
     const { region, participantsInfosByMatch } = res.locals;
 
-    let matchesStats = [];
+    let matchesTimelines = [];
 
     for (const matchId of Object.keys(participantsInfosByMatch)) {
-      const matchStats: any = await riot(region).getMatchStatsByMatchId(
+      const matchTimeline = await riot(region).getMatchTimelineByMatchId(
         matchId
       );
 
-      matchesStats.push(matchStats);
+      matchesTimelines.push(matchTimeline);
     }
 
-    res.locals.matchesStats = matchesStats;
+    res.locals.matchesTimelines = matchesTimelines;
+    res.locals.test = matchesTimelines;
 
     next();
   } catch (err) {
-    console.error(err);
     next(err);
   }
 }

@@ -2,23 +2,20 @@ import { Request, Response, NextFunction } from "express";
 
 export function checkParams(req: Request, _: Response, next: NextFunction) {
   try {
-    const checkFct: {
-      [key: string]: (params: Record<string, string>) => void;
-    } = {
-      ["/account/:regionCode/:summonerName"]: checkAccountPath,
-      ["/matches/:regionCode/:puuid"]: checkMatchesPath,
+    const checkFctByPath: CheckFctByPath = {
+      [Paths.summoner]: checkAccountPath,
+      [Paths.matches]: checkMatchesPath,
     };
 
-    checkFct[req.route.path](req.params);
+    checkFctByPath[req.route.path](req.params);
 
     next();
   } catch (err) {
-    console.error(err);
     next(err);
   }
 }
 
-function checkAccountPath(params: Record<string, string>) {
+function checkAccountPath(params: Params) {
   if (params.summonerName === undefined) {
     throw new Error("Missing summonerName");
   }
@@ -28,7 +25,7 @@ function checkAccountPath(params: Record<string, string>) {
   }
 }
 
-function checkMatchesPath(params: Record<string, string>) {
+function checkMatchesPath(params: Params) {
   if (params.regionCode === undefined) {
     throw new Error("Missing region");
   }
@@ -36,4 +33,16 @@ function checkMatchesPath(params: Record<string, string>) {
   if (params.puuid === undefined) {
     throw new Error("Missing matchId");
   }
+}
+
+interface CheckFctByPath {
+  [key: string]: CheckFct;
+}
+
+type CheckFct = (params: Params) => void;
+type Params = Record<string, string>;
+
+enum Paths {
+  "summoner" = "/account/:regionCode/:summonerName",
+  "matches" = "/matches/:regionCode/:puuid",
 }
