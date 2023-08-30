@@ -1,6 +1,6 @@
 import { Response,NextFunction } from "express";
 import { Account } from "../../../../database/models";
-import { AccountLocals } from "../../../types";
+import { AccountLocals } from "../../types";
 
 export async function getStoredAccount(
   _: any,
@@ -8,7 +8,7 @@ export async function getStoredAccount(
   next: NextFunction
 ) {
   try {
-    const { puuid } = res.locals.updatedAccountWithRank;
+    const { puuid } = res.locals.upToDateAccountWithRank;
 
     const isStored = await Account.exists(puuid);
 

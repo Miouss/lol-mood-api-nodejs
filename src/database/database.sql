@@ -54,7 +54,6 @@ CREATE TABLE game_info (
   kills int,
   deaths int,
   assists int,
-  multikills tinyint,
   skillsOrder VARCHAR(18),
   evolvesOrder VARCHAR(4),
 
@@ -90,7 +89,6 @@ CREATE TABLE game_info (
   startItemId3 int,
   startItemId4 int,
   startItemId5 int,
-  startItemId6 int,
 
   completedItemId0 int,
   completedItemId1 int,

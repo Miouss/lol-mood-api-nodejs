@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getRegion } from "../../utils";
+import { getRegion } from "../utils";
 
 export async function convertRegion(
   req: Request,

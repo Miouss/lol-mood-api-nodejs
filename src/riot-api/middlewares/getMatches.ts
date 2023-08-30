@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { riot } from "../../../utils/requests";
-import { MatchesLocals } from "../../../types";
+import { riot } from "../utils";
 
 export async function getMatches(
   req: Request,
-  res: Response<any, MatchesLocals>,
+  res: Response,
   next: NextFunction
 ) {
   try {

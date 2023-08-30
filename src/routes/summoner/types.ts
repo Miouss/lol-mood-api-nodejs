@@ -1,11 +1,11 @@
-import { Account, Rank } from "..";
-import { StoredAccount } from "../../../database/models";
+import { StoredAccount } from "../../database/models";
+import { Account } from "../../riot-api/types";
 
 export interface AccountLocals {
   host: string;
   region: string;
-  updatedAccount: PartialAccount;
-  updatedAccountWithRank: AccountWithRank;
+  upToDateAccount: PartialAccount;
+  upToDateAccountWithRank: AccountWithRank;
   storedAccount: StoredAccount;
   test: any;
 }
@@ -25,5 +25,3 @@ export interface SortedRank {
   games: number;
   wins: number;
 }
-
-export type RankedSoloQueue = Required<Omit<Rank, "miniSeries">>;

@@ -1,51 +1,31 @@
 import { Request, Response, NextFunction } from "express";
-import { arrayToKeyedObject } from "../../utils";
-import {
-  AssetIdsByMatch,
-  AssetObj,
-  MatchesLocals,
-  ParticipantAssetIds,
-  ParticipantInfos,
-  ParticipantInfosByMatch,
-} from "../../../types";
+import { arrayToKeyedObj } from "../../utils";
+import { ParticipantInfos } from "../../../riot-api/types";
+import { AssetIdsByPuuid, Locals, ParticipantInfosFiltered } from "../types";
 
-export async function extractMatchesInfos(
+export async function extractMatchInfos(
   _: Request,
-  res: Response<any, MatchesLocals>,
+  res: Response<any, Locals>,
   next: NextFunction
 ) {
   try {
-    const { matchesInfosByMatch } = res.locals;
+    const { matchInfos } = res.locals;
 
-    if (!matchesInfosByMatch) return next();
-
-    let participantsInfosByMatch: ParticipantInfosByMatch = {};
-    let assetIdsByMatch: AssetIdsByMatch = {};
+    const participantsInfos: ParticipantInfosFiltered[] = [];
+    const assetsIds: any = {};
     const champsNames: string[] = [];
-    const uniqueAssetIds: Array<string | number> = [];
 
-    for (const [matchId, matchData] of Object.entries(matchesInfosByMatch)) {
-      const participantInfos: ParticipantInfos[] = [];
-      const assetIds: ParticipantAssetIds[] = [];
+    matchInfos.info.participants.forEach((participant, i) => {
+      const repetitiveFields = extractRepetitiveFieldsObj(participant);
 
-      ((matchData as any).info.participants as any[]).forEach(
-        (participant: any, index) => {
-          const repetitiveFields = repetitiveFieldsObj(participant);
+      filterUniqueChampionsNames(champsNames, participant.championName);
+      fillAssetIds(participant, assetsIds, repetitiveFields);
+      fillParticipantsInfos(participant, participantsInfos, assetsIds);
+    });
 
-          fillParticipantInfos(participant, participantInfos);
-          filterUniqueChampionsNames(champsNames, participant.championName);
-          fillAssetIds(participant, assetIds, repetitiveFields, index);
-        }
-      );
-
-      participantsInfosByMatch[matchId] = participantInfos;
-      assetIdsByMatch[matchId] = assetIds;
-
-      filterUniqueAssetIds(assetIds, uniqueAssetIds);
-    }
-
-    res.locals.participantsInfosByMatch = participantsInfosByMatch;
-    res.locals.assetIdsByMatch = assetIdsByMatch;
+    res.locals.participantsInfos = participantsInfos;
+    res.locals.assetsIds = assetsIds;
+    res.locals.champsNames = champsNames;
 
     next();
   } catch (err) {
@@ -62,18 +42,11 @@ function filterUniqueChampionsNames(
   if (isChampNameUnknown) champsNames.push(championName);
 }
 
-function filterUniqueAssetIds(
-  assetIds: ParticipantAssetIds[],
-  uniqueAssetIds: Array<number | string>
+function fillParticipantsInfos(
+  participant: ParticipantInfos,
+  participantInfos: ParticipantInfosFiltered[],
+  assetsIds: AssetIdsByPuuid,
 ) {
-  assetIds.forEach(({ assets }) => {
-    assets.forEach(({ data }) => {
-      if (!uniqueAssetIds.includes(data)) uniqueAssetIds.push(data);
-    });
-  });
-}
-
-function fillParticipantInfos(participant: any, participantInfos: any) {
   const { puuid, lane, win, kills, deaths, assists } = participant;
 
   participantInfos.push({
@@ -83,44 +56,32 @@ function fillParticipantInfos(participant: any, participantInfos: any) {
     kills,
     deaths,
     assists,
+    assets: assetsIds[puuid],
   });
 }
 
 function fillAssetIds(
-  participant: any,
-  assetIds: ParticipantAssetIds[],
-  repetitiveFields: any,
-  index: number
+  participant: ParticipantInfos,
+  assetIds: any,
+  repetitiveFields: any
 ) {
   const { puuid, perks } = participant;
   const [primaryStyle, subStyle] = perks.styles;
-
-  assetIds.push({
-    puuid,
-    assets: [],
-  });
-
-  assetIds[index].assets.push(
-    assetObj(primaryStyle.style, "primaryStyleId"),
-    assetObj(subStyle.style, "subStyleId"),
-    assetObj(primaryStyle.selections[0].perk, "perkId")
-  );
-
   const repetitiveAssetIds = convertRepetitiveFieldsForDB(repetitiveFields);
 
-  Object.entries(repetitiveAssetIds).forEach(([field, data]) => {
-    assetIds[index].assets.push(assetObj(data, field));
-  });
-}
-
-function assetObj(data: number | string, field: string): AssetObj {
-  return {
-    data,
-    field,
+  assetIds[puuid] = {
+    ...repetitiveAssetIds,
   };
+
+  assetIds[puuid];
+  assetIds[puuid]["primaryStyleId"] = primaryStyle.style;
+  assetIds[puuid]["subStyleId"] = subStyle.style;
+  assetIds[puuid]["perkId"] = primaryStyle.selections[0].perk;
 }
 
-function repetitiveFieldsObj(participant: any): RepetitiveFieldObj[] {
+function extractRepetitiveFieldsObj(
+  participant: ParticipantInfos
+): RepetitiveFieldObj[] {
   const createData = (data: any, prefix: string) => ({
     data,
     prefix,
@@ -132,7 +93,7 @@ function repetitiveFieldsObj(participant: any): RepetitiveFieldObj[] {
     runesTree.shift();
 
     return createData(
-      runesTree.map((rune: any) => rune.perk),
+      runesTree.map((rune) => rune.perk),
       "runeId"
     );
   };
@@ -147,7 +108,7 @@ function repetitiveFieldsObj(participant: any): RepetitiveFieldObj[] {
     );
 
   const extractStatsMods = () =>
-    createData(Object.keys(participant.perks.statPerks), "statsModId");
+    createData(Object.values(participant.perks.statPerks), "statsModId");
 
   return [
     extractItems(),
@@ -182,7 +143,7 @@ function convertRepetitiveFieldsForDB(
   repetitiveFields.forEach((field) => {
     dataObj = {
       ...dataObj,
-      ...arrayToKeyedObject(field.data, field.prefix),
+      ...arrayToKeyedObj(field.data, field.prefix),
     };
   });
 

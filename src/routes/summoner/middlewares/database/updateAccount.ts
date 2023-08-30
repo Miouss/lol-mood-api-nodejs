@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Account, StoredAccount } from "../../../../database/models";
-import { AccountLocals, AccountWithRank } from "../../../types";
+import { AccountLocals, AccountWithRank } from "../../types";
 
 export async function updateAccount(
   _: Request,
@@ -8,10 +8,11 @@ export async function updateAccount(
   next: NextFunction
 ) {
   try {
-    const { updatedAccountWithRank, storedAccount } = res.locals;
-    const isAccountFound = storedAccount || updatedAccountWithRank;
+    const { upToDateAccountWithRank, storedAccount } = res.locals;
+    const isAccountFound =
+      Boolean(storedAccount) || Boolean(upToDateAccountWithRank);
     const isAccountStored = !!storedAccount;
-    const hasRankedGames = updatedAccountWithRank.rank;
+    const hasRankedGames = !!upToDateAccountWithRank.rank;
 
     if (!isAccountFound)
       throw new Error("No account found for this summoner name");
@@ -21,15 +22,15 @@ export async function updateAccount(
 
     if (isAccountStored) {
       const hasAtLeastOneChange = checkChanges(
-        updatedAccountWithRank,
+        upToDateAccountWithRank,
         storedAccount
       );
 
       if (hasAtLeastOneChange) {
-        await Account.update(updatedAccountWithRank);
+        await Account.update(upToDateAccountWithRank);
       }
     } else {
-      await Account.create(updatedAccountWithRank);
+      await Account.create(upToDateAccountWithRank);
     }
 
     next();
@@ -39,11 +40,11 @@ export async function updateAccount(
 }
 
 function checkChanges(
-  updatedAccountWithRank: AccountWithRank,
+  upToDateAccountWithRank: AccountWithRank,
   storedAccount: StoredAccount
 ) {
   const { name, profileIconId, summonerLevel, tier, rank, lp, games } =
-    updatedAccountWithRank;
+    upToDateAccountWithRank;
   const {
     name: storedName,
     profileIconId: storedProfileIconId,

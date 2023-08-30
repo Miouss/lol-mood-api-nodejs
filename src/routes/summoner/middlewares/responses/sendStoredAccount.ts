@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import { AccountLocals } from "../../../types";
+import { AccountLocals } from "../../types";
 
 export function sendStoredAccount(
   _: any,

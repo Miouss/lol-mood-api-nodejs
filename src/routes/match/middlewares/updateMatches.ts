@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { Game } from "../../../../database/models";
-import { MatchesLocals, MatchesNotStoredByMatch } from "../../../types";
+import { Game } from "../../../database/models";
 
 export async function updateGame(
   _: Request,
-  res: Response<any, MatchesLocals>,
+  res: Response,
   next: NextFunction
 ) {
   try {
@@ -12,18 +11,18 @@ export async function updateGame(
 
     if (!matches) throw new Error("No matches found for this account");
 
-    let matchesNotStoredByMatch: MatchesNotStoredByMatch = {};
+    let matchesNotStored = [];
 
     for (const matchId of matches) {
       const isMatchStored = await Game.exists(matchId);
 
       if (!isMatchStored) {
         //await Game.set(matchId);
-        matchesNotStoredByMatch[matchId] = [];
+        matchesNotStored.push(matchId);
       }
     }
 
-    res.locals.matchesNotStoredByMatch = matchesNotStoredByMatch;
+    res.locals.matchesNotStored = matchesNotStored;
 
     next();
   } catch (err) {
