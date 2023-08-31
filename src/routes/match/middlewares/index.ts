@@ -1,7 +1,7 @@
 export * from "./extractMatchInfos";
 export * from "./extractMatchStats";
-export * from "./updateMatches";
 export * from "./mergeInfosWithStats";
+export * from "./filterNotStoredMatches";
 
 // responses
 

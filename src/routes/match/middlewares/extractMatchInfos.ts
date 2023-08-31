@@ -45,7 +45,7 @@ function filterUniqueChampionsNames(
 function fillParticipantsInfos(
   participant: ParticipantInfos,
   participantInfos: ParticipantInfosFiltered[],
-  assetsIds: AssetIdsByPuuid,
+  assetsIds: AssetIdsByPuuid
 ) {
   const { puuid, lane, win, kills, deaths, assists } = participant;
 
@@ -56,7 +56,7 @@ function fillParticipantsInfos(
     kills,
     deaths,
     assists,
-    assets: assetsIds[puuid],
+    ...assetsIds[puuid],
   });
 }
 

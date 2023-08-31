@@ -33,14 +33,10 @@ export async function mergeInfosWithStats(
       const participantInfo =
         participantsInfos[participantInfosKey];
 
-      participantInfo.assets = {
-        ...participantInfo.assets,
-        ...startItemsIds,
-        ...completedItemsIds,
-      };
-
       const participantInfosMergedWithStats = {
         ...participantInfo,
+        ...startItemsIds,
+        ...completedItemsIds,
         evolvesOrder: participantStats.evolvesOrder,
         skillsOrder: participantStats.skillsOrder,
       };

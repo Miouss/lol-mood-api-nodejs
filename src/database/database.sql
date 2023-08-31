@@ -31,12 +31,6 @@ CREATE TABLE champ (
   PRIMARY KEY (id)
 );
 
-CREATE TABLE asset (
-  id int AUTO_INCREMENT,
-  identifier int UNIQUE NOT NULL,
-  PRIMARY KEY (id)
-);
-
 CREATE TABLE positioning  (
   id int AUTO_INCREMENT,
   lane varchar(64) UNIQUE NOT NULL,
@@ -103,43 +97,5 @@ CREATE TABLE game_info (
   FOREIGN KEY(gameId) REFERENCES game(id),
   FOREIGN KEY(accountId) REFERENCES account(id),
   FOREIGN KEY(champId) REFERENCES champ(id),
-  FOREIGN KEY(positioningId) REFERENCES positioning(id),
-
-  FOREIGN KEY(primaryStyleId) REFERENCES asset(id),
-  FOREIGN KEY(subStyleId) REFERENCES asset(id),
-  FOREIGN KEY(perkId) REFERENCES asset(id),
-
-  FOREIGN KEY(runeId0) REFERENCES asset(id),
-  FOREIGN KEY(runeId1) REFERENCES asset(id),
-  FOREIGN KEY(runeId2) REFERENCES asset(id),
-  FOREIGN KEY(runeId3) REFERENCES asset(id),
-  FOREIGN KEY(runeId4) REFERENCES asset(id),
-
-  FOREIGN KEY(statsModId0) REFERENCES asset(id),
-  FOREIGN KEY(statsModId1) REFERENCES asset(id),
-  FOREIGN KEY(statsModId2) REFERENCES asset(id),
-
-  FOREIGN KEY(summonerId0) REFERENCES asset(id),
-  FOREIGN KEY(summonerId1) REFERENCES asset(id),
-
-  FOREIGN KEY(itemId0) REFERENCES asset(id),
-  FOREIGN KEY(itemId1) REFERENCES asset(id),
-  FOREIGN KEY(itemId2) REFERENCES asset(id),
-  FOREIGN KEY(itemId3) REFERENCES asset(id),
-  FOREIGN KEY(itemId4) REFERENCES asset(id),
-  FOREIGN KEY(itemId5) REFERENCES asset(id),
-
-  FOREIGN KEY (startItemId0) REFERENCES asset(id),
-  FOREIGN KEY (startItemId1) REFERENCES asset(id),
-  FOREIGN KEY (startItemId2) REFERENCES asset(id),
-  FOREIGN KEY (startItemId3) REFERENCES asset(id),
-  FOREIGN KEY (startItemId4) REFERENCES asset(id),
-  FOREIGN KEY (startItemId5) REFERENCES asset(id),
-
-  FOREIGN KEY (completedItemId0) REFERENCES asset(id),
-  FOREIGN KEY (completedItemId1) REFERENCES asset(id),
-  FOREIGN KEY (completedItemId2) REFERENCES asset(id),
-  FOREIGN KEY (completedItemId3) REFERENCES asset(id),
-  FOREIGN KEY (completedItemId4) REFERENCES asset(id),
-  FOREIGN KEY (completedItemId5) REFERENCES asset(id)
+  FOREIGN KEY(positioningId) REFERENCES positioning(id)
 );

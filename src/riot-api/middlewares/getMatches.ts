@@ -10,7 +10,7 @@ export async function getMatches(
     const { puuid } = req.params;
     const { region } = res.locals;
 
-    res.locals.matches = await riot(region).getMatchListByPuuid(puuid);
+    res.locals.matchesOfAccount = await riot(region).getMatchListByPuuid(puuid);
 
     next();
   } catch (err) {

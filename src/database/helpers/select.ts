@@ -9,6 +9,7 @@ export function select(...columns: string[]) {
         where: (whereData: Record<string, string>) =>
           selectFromWhere(columns, table, whereData, innerJoin),
       }),
+      done: () => `SELECT ${columns.join(", ")} FROM ${table}`,
     }),
   };
 }
