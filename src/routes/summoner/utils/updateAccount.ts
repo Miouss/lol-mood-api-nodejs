@@ -28,8 +28,6 @@ export async function updateAccount(
   } else {
     await Account.create(upToDateAccountWithRank);
   }
-
-  return upToDateAccountWithRank;
 }
 
 function checkChanges(

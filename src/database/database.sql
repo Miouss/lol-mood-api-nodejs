@@ -43,6 +43,7 @@ CREATE TABLE game_info (
   assists int,
   skillsOrder VARCHAR(18),
   evolvesOrder VARCHAR(4),
+  lane VARCHAR(8),
 
 
   primaryStyleId int NOT NULL,
@@ -69,6 +70,7 @@ CREATE TABLE game_info (
   itemId3 int,
   itemId4 int,
   itemId5 int,
+  itemId6 int,
 
   startItemId0 int,
   startItemId1 int,

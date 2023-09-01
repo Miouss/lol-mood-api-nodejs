@@ -5,9 +5,9 @@ export function select(...columns: string[]) {
     from: (table: string) => ({
       where: (whereData: Record<string, string>) =>
         selectFromWhere(columns, table, whereData),
-      innerJoin: (innerJoin: string) => ({
+      innerJoin: (...tablesJoin: string[]) => ({
         where: (whereData: Record<string, string>) =>
-          selectFromWhere(columns, table, whereData, innerJoin),
+          selectFromWhere(columns, table, whereData, tablesJoin),
       }),
       done: () => `SELECT ${columns.join(", ")} FROM ${table}`,
     }),
@@ -18,12 +18,16 @@ function selectFromWhere(
   columns: string[],
   table: string,
   whereData: Record<string, string>,
-  innerJoin?: string
+  tablesJoin?: string[]
 ) {
   const where = whereQuery(whereData);
 
-  if(!innerJoin){
-    innerJoin = "";
+  let innerJoin = "";
+
+  if (tablesJoin) {
+    innerJoin = tablesJoin.reduce((acc, tableJoin) => {
+      return `${acc} INNER JOIN ${tableJoin} ON ${table}.${tableJoin}Id = ${tableJoin}.id`;
+    }, "");
   }
 
   return `SELECT ${columns.join(

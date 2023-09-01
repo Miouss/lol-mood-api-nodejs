@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { riot } from "../../../riot-api/utils";
-import { Game } from "../../../database/models";
+import { Game, GameInfo, ParticipantMatchData } from "../../../database/models";
 import {
   extractParticipantsInfos,
   extractParticipantsStats,
@@ -17,17 +17,15 @@ export async function retrieveMatchesData(
 
     const matchList = await riot(region).getMatchListByPuuid(account.puuid);
 
-    let matchesData = [];
+    let matchesData: ParticipantMatchData[] = [];
 
     for (const matchId of matchList) {
       const isMatchStored = await Game.exists(matchId);
 
       if (!isMatchStored) {
         const matchInfos = await riot(region).getMatchInfosByMatchId(matchId);
-        
-        const participantsInfos = await extractParticipantsInfos(
-          matchInfos
-        );
+
+        const participantsInfos = await extractParticipantsInfos(matchInfos);
 
         const matchTimeline = await riot(region).getMatchTimelineByMatchId(
           matchId
@@ -35,16 +33,24 @@ export async function retrieveMatchesData(
 
         const participantsStats = await extractParticipantsStats(matchTimeline);
 
-        const participantsMatchData = await mergeInfosAndStats(
+        const participantMatchData = await mergeInfosAndStats(
           participantsInfos,
-          participantsStats
+          participantsStats,
+          account.puuid
         );
 
-        matchesData.push(participantsMatchData);
+        matchesData.push(participantMatchData);
+      } else {
+        const matchData: any = await GameInfo.getGameStatsByPuuid(
+          matchId,
+          account.puuid
+        );
+
+        matchesData.push(matchData);
       }
     }
 
-    res.json({ matchesData });
+    res.json(matchesData);
   } catch (err) {
     next(err);
   }

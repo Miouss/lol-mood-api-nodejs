@@ -24,7 +24,7 @@ export function convertAllRepetitivesFields(data: any) {
   convertRepetitivesFields(data, "summoners", "summonerId");
   convertRepetitivesFields(data, "runes", "runeId");
   convertRepetitivesFields(data, "items", "itemId");
-  convertRepetitivesFields(data, "start_items", "startItemId");
+  convertRepetitivesFields(data, "startItems", "startItemId");
   convertRepetitivesFields(
     data,
     "completedItems",

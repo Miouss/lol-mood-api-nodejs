@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { getUpToDateAccount, getUpToDateRank } from "../../../riot-api/utils";
-import { Account, StoredAccount } from "../../../database/models";
-import { AccountWithRank } from "../../../riot-api/types";
 import { getStoredAccount, updateAccount } from "../utils";
 
 export async function retrieveAccount(

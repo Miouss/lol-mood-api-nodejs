@@ -1,4 +1,4 @@
-export interface ParticipantInfosFiltered {
+export interface ParticipantInfosFiltered extends AssetsIds {
   puuid?: string;
   accountId: number;
   gameId: number;

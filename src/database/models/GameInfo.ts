@@ -7,8 +7,6 @@ export class GameInfo {
   private static tables = {
     game: "game",
     champ: "champ",
-    positioning: "positioning",
-    asset: "asset",
     account: "account",
   };
 
@@ -30,12 +28,27 @@ export class GameInfo {
     await executeQuery(query, "setGameInfo");
   }
 
-  public static async getChampStats(champName: string) {
-    const query = select("*")
+  public static async getGameStatsByPuuid(gameId: string, puuid: string) {
+    const query = select(
+      `${this.tables.game}.identifier as matchId`,
+      `${this.tables.champ}.name as champName`,
+      `${this.table}.*`
+    )
       .from(this.table)
-      .innerJoin(
-        `${this.tables.champ} ON ${this.table}.champ_id = ${this.tables.champ}.id`
-      )
+      .innerJoin(this.tables.game, this.tables.champ, this.tables.account)
+      .where({ identifier: gameId, puuid });
+
+    const result = await executeQuery(query, "getGameStatsByPuuid");
+
+    convertAllRepetitivesFields(result);
+
+    return (result as ParticipantMatchData[])[0];
+  }
+
+  public static async getChampStats(champName: string) {
+    const query = select(`${this.table}.*`)
+      .from(this.table)
+      .innerJoin(this.tables.champ)
       .where({ [`${this.tables.champ}.name`]: champName });
 
     const result = await executeQuery(query, "getChampStats");
@@ -49,13 +62,15 @@ export interface ParticipantMatchData {
   accountId: number;
   gameId: number;
   champId: number;
-  
+
+  skillsOrder: string;
+  evolvesOrder: string;
   lane: string;
   win: boolean;
   kills: number;
   deaths: number;
   assists: number;
-  
+
   itemId0?: number;
   itemId1?: number;
   itemId2?: number;

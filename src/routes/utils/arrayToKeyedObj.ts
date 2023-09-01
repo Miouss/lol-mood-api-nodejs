@@ -1,4 +1,4 @@
-export function arrayToKeyedObj(array: any[], key: string) {
+export function arrayToKeyedObj(array: unknown[], key: string) {
     const obj: any = {};
   
     let i = 0;
