@@ -12,6 +12,12 @@ export class Account {
     await executeQuery(query, "create account");
   }
 
+  public static async createUnknownAccount(puuid: string) {
+    const query = insertInto(this.table).values({ puuid });
+
+    await executeQuery(query, "create unknown account");
+  }
+
   public static async get(puuid: string) {
     const query = select("*").from(this.table).where({ puuid });
 
@@ -37,17 +43,17 @@ export class Account {
 
 export interface StoredAccount {
   puuid: string;
-  name: string;
+  name?: string;
   id?: string;
   summonerLevel?: number;
   level?: number;
-  profileIconId: number;
+  profileIconId?: number;
   rank?: string;
   grade?: string;
-  tier: string;
-  lp: number;
-  games: number;
-  wins: number;
+  tier?: string;
+  lp?: number;
+  games?: number;
+  wins?: number;
 }
 
 function convertDataForDB(data: StoredAccount) {

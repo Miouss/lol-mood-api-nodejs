@@ -1,5 +1,5 @@
 import { insertInto } from "../helpers";
-import { executeQuery, getRowId } from "../utils";
+import { executeQuery, getRowId, isStored } from "../utils";
 
 export class Champ {
   private static table = "champ";
@@ -8,9 +8,13 @@ export class Champ {
     return await getRowId(this.table, { name: champ });
   }
 
-  public static async set(champ: string) {
+  public static async create(champ: string) {
     const query = insertInto(this.table).values({ name: champ });
 
     await executeQuery(query, "setChamp");
+  }
+
+  public static async exists(champ: string) {
+    return await isStored(this.table, { name: champ });
   }
 }

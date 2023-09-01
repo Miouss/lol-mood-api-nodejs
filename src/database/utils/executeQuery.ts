@@ -16,5 +16,7 @@ export async function executeQuery(query: string, name?: string) {
     console.error(`Error executing\n\n${query} \n\n ${name}:`, err.message);
 
     return null;
+  } finally {
+    conn.end();
   }
 }

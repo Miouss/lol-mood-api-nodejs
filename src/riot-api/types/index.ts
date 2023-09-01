@@ -28,15 +28,6 @@ export interface SortedRank {
 
 export type RankedSoloQueue = Required<Omit<Rank, "miniSeries">>;
 
-export interface AccountLocals {
-  host: string;
-  region: string;
-  upToDateAccount: PartialAccount;
-  accountWithRank: AccountWithRank;
-  storedAccount: StoredAccount;
-  test: any;
-}
-
 export interface AccountWithRank extends PartialAccount, SortedRank {}
 
 export interface PartialAccount

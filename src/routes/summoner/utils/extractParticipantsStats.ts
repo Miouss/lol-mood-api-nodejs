@@ -1,6 +1,27 @@
 import itemJSON from "../../../assets/item.json" assert { type: "json" };
+import { MatchTimeline } from "../../../riot-api/types";
 
-export function participant(participantStats: ParticipantStatsType) {
+export async function extractParticipantsStats(matchTimeline: MatchTimeline) {
+  const participantsStats = createParticipantsStats(
+    matchTimeline.info.participants!
+  );
+
+  for (const frame of matchTimeline.info.frames) {
+    for (const event of frame.events) {
+      if (!isEventTypeHandled(event.type)) continue;
+
+      const { type, participantId } = event;
+
+      const id = participantId! - 1;
+
+      participant(participantsStats[id]).event(event)[type as EventType]();
+    }
+  }
+
+  return participantsStats;
+}
+
+function participant(participantStats: ParticipantStatsType) {
   const handleItemPurchased = (event: any) => {
     const { total, purchasable } = (itemJSON as any).data[event.itemId].gold;
 

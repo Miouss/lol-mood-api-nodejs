@@ -22,7 +22,7 @@ export class GameInfo {
     return result;
   }
 
-  public static async set(data: MatchData) {
+  public static async create(data: ParticipantMatchData) {
     const query = insertInto(this.table).values(
       data as unknown as Record<string, string | number>
     );
@@ -45,19 +45,31 @@ export class GameInfo {
   }
 }
 
-export interface MatchData {
-  gameId: number;
+export interface ParticipantMatchData {
   accountId: number;
+  gameId: number;
   champId: number;
-  positioningId: number;
-
+  
+  lane: string;
   win: boolean;
-  kills: number | null;
-  deaths: number | null;
-  assists: number | null;
-  multikills: boolean | null;
-  skillsOrder: string | null;
-  evolvesOrder: string | null;
+  kills: number;
+  deaths: number;
+  assists: number;
+  
+  itemId0?: number;
+  itemId1?: number;
+  itemId2?: number;
+  itemId3?: number;
+  itemId4?: number;
+  itemId5?: number;
+  itemId6?: number;
+
+  statsModId0: number;
+  statsModId1: number;
+  statsModId2: number;
+
+  summonerId0: number;
+  summonerId1: number;
 
   primaryStyleId: number;
   subStyleId: number;
@@ -68,33 +80,4 @@ export interface MatchData {
   runeId2: number;
   runeId3: number;
   runeId4: number;
-
-  statsModId0: number;
-  statsModId1: number;
-  statsModId2: number;
-
-  summonerId0: number;
-  summonerId1: number;
-
-  itemId0: number | null;
-  itemId1: number | null;
-  itemId2: number | null;
-  itemId3: number | null;
-  itemId4: number | null;
-  itemId5: number | null;
-
-  startItemId0: number | null;
-  startItemId1: number | null;
-  startItemId2: number | null;
-  startItemId3: number | null;
-  startItemId4: number | null;
-  startItemId5: number | null;
-  startItemId6: number | null;
-
-  completedItemId0: number | null;
-  completedItemId1: number | null;
-  completedItemId2: number | null;
-  completedItemId3: number | null;
-  completedItemId4: number | null;
-  completedItemId5: number | null;
 }

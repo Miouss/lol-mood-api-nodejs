@@ -8,7 +8,7 @@ export class Game {
     return await getRowId(this.table, { identifier: gameId });
   }
 
-  public static async set(gameId: string) {
+  public static async create(gameId: string) {
     const query = insertInto(this.table).values({
       identifier: gameId,
     });

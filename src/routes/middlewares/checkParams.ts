@@ -3,10 +3,10 @@ import { Request, Response, NextFunction } from "express";
 export function checkParams(req: Request, _: Response, next: NextFunction) {
   try {
     const checkFctByPath: CheckFctByPath = {
-      [Paths.summoner]: checkAccountPath,
+      [Paths.account]: checkAccountPath,
       [Paths.matches]: checkMatchesPath,
     };
-
+    console.log(req.route.path);
     checkFctByPath[req.route.path](req.params);
 
     next();
@@ -43,6 +43,6 @@ type CheckFct = (params: Params) => void;
 type Params = Record<string, string>;
 
 enum Paths {
-  "summoner" = "/account/:regionCode/:summonerName",
   "matches" = "/matches/:regionCode/:puuid",
+  "account" = "/:regionCode/:summonerName",
 }

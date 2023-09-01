@@ -31,17 +31,10 @@ CREATE TABLE champ (
   PRIMARY KEY (id)
 );
 
-CREATE TABLE positioning  (
-  id int AUTO_INCREMENT,
-  lane varchar(64) UNIQUE NOT NULL,
-  PRIMARY KEY (id)
-);
-
 CREATE TABLE game_info (
   gameId int NOT NULL,
   accountId int NOT NULL,
   champId int NOT NULL,
-  positioningId int NOT NULL,
 
 
   win boolean NOT NULL,
@@ -96,6 +89,5 @@ CREATE TABLE game_info (
 
   FOREIGN KEY(gameId) REFERENCES game(id),
   FOREIGN KEY(accountId) REFERENCES account(id),
-  FOREIGN KEY(champId) REFERENCES champ(id),
-  FOREIGN KEY(positioningId) REFERENCES positioning(id)
+  FOREIGN KEY(champId) REFERENCES champ(id)
 );

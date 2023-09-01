@@ -1,63 +1,85 @@
-import { Request, Response, NextFunction } from "express";
+import { Game, Champ, Account } from "../../../database/models";
+import { MatchInfo, ParticipantInfos } from "../../../riot-api/types";
+import { ParticipantInfosFiltered, AssetIdsByPuuid } from "../types";
 import { arrayToKeyedObj } from "../../utils";
-import { ParticipantInfos } from "../../../riot-api/types";
-import { AssetIdsByPuuid, Locals, ParticipantInfosFiltered } from "../types";
 
-export async function extractMatchInfos(
-  _: Request,
-  res: Response<any, Locals>,
-  next: NextFunction
-) {
-  try {
-    const { matchInfos } = res.locals;
+export async function extractParticipantsInfos(matchInfos: MatchInfo) {
+  const participantsInfos: ParticipantInfosFiltered[] = [];
+  const assetsIds: any = {};
+  const matchId = matchInfos.metadata.matchId;
 
-    const participantsInfos: ParticipantInfosFiltered[] = [];
-    const assetsIds: any = {};
-    const champsNames: string[] = [];
+  const gameId = await retrieveGameId(matchId);
 
-    matchInfos.info.participants.forEach((participant, i) => {
-      const repetitiveFields = extractRepetitiveFieldsObj(participant);
+  for (const participant of matchInfos.info.participants) {
+    const repetitiveFields = extractRepetitiveFieldsObj(participant);
 
-      filterUniqueChampionsNames(champsNames, participant.championName);
-      fillAssetIds(participant, assetsIds, repetitiveFields);
-      fillParticipantsInfos(participant, participantsInfos, assetsIds);
-    });
-
-    res.locals.participantsInfos = participantsInfos;
-    res.locals.assetsIds = assetsIds;
-    res.locals.champsNames = champsNames;
-
-    next();
-  } catch (err) {
-    next(err);
+    fillAssetIds(participant, assetsIds, repetitiveFields);
+    await fillParticipantsInfos(
+      participant,
+      participantsInfos,
+      assetsIds,
+      gameId
+    );
   }
+
+  return participantsInfos;
 }
 
-function filterUniqueChampionsNames(
-  champsNames: string[],
-  championName: string
-) {
-  const isChampNameUnknown = !champsNames.includes(championName);
-
-  if (isChampNameUnknown) champsNames.push(championName);
-}
-
-function fillParticipantsInfos(
+async function fillParticipantsInfos(
   participant: ParticipantInfos,
   participantInfos: ParticipantInfosFiltered[],
-  assetsIds: AssetIdsByPuuid
+  assetsIds: AssetIdsByPuuid,
+  gameId: number
 ) {
-  const { puuid, lane, win, kills, deaths, assists } = participant;
+  const {
+    puuid,
+    individualPosition,
+    win,
+    kills,
+    deaths,
+    assists,
+    championName,
+  } = participant;
+
+  const accountId = await retrieveAccountId(puuid);
+  const champId = await retrieveChampId(championName);
 
   participantInfos.push({
+    accountId,
+    gameId,
+    champId,
     puuid,
-    lane,
+    lane: individualPosition,
     win,
     kills,
     deaths,
     assists,
     ...assetsIds[puuid],
   });
+}
+
+async function retrieveGameId(gameId: string) {
+  const isGameExists = await Game.exists(gameId);
+
+  if (!isGameExists) await Game.create(gameId);
+
+  return await Game.getId(gameId);
+}
+
+async function retrieveChampId(championName: string) {
+  const isChampExists = await Champ.exists(championName);
+
+  if (!isChampExists) await Champ.create(championName);
+
+  return await Champ.getId(championName);
+}
+
+async function retrieveAccountId(puuid: string) {
+  const isAccountExists = await Account.exists(puuid);
+
+  if (!isAccountExists) await Account.createUnknownAccount(puuid);
+
+  return await Account.getId(puuid);
 }
 
 function fillAssetIds(

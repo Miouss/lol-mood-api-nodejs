@@ -1,32 +1,15 @@
 import { Router } from "express";
-
-import {
-  getStoredAccount,
-  updateAccount,
-  sendStoredAccount,
-  errorHandler,
-} from "./middlewares";
-
-import {
-  getUpToDateAccount,
-  getUpToDateRank,
-} from "../../riot-api/middlewares";
-
-import { convertRegion, checkParams } from "../middlewares";
+import { checkParams, convertRegion } from "../middlewares";
+import { retrieveAccount, retrieveMatchesData } from "./middlewares";
 
 const summoner = Router();
 
 summoner.get(
-  "/account/:regionCode/:summonerName",
+  "/:regionCode/:summonerName",
   checkParams,
   convertRegion,
-  getUpToDateAccount,
-  getUpToDateRank,
-  getStoredAccount,
-  updateAccount,
-  getStoredAccount,
-  sendStoredAccount,
-  errorHandler
+  retrieveAccount,
+  retrieveMatchesData
 );
 
 export { summoner };
