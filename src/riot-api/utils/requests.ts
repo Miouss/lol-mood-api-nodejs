@@ -4,7 +4,7 @@ import { MatchInfo, MatchTimeline, Rank, PartialAccount } from "../types";
 const DOMAIN = ".api.riotgames.com/lol/";
 const ACCOUNT = "summoner/v4/summoners/by-name";
 const RANK = "league/v4/entries/by-summoner";
-const MATCHES = ["match/v5/matches/by-puuid", "ids?start=0&count=3&queue=420"];
+const MATCHES = ["match/v5/matches/by-puuid", "ids?start=0&count=50&queue=420"];
 const MATCH_TIMELINE = ["match/v5/matches", "timeline"];
 const MATCH_INFO = "match/v5/matches";
 

@@ -5,11 +5,8 @@ import { GameInfo, ParticipantMatchData } from "../../../database/models";
 
 export async function mergeInfosAndStats(
   participantsInfos: ParticipantInfosFiltered[],
-  participantsStats: ParticipantStatsType[],
-  puuidSearched: string
+  participantsStats: ParticipantStatsType[]
 ) {
-  let accountMatchData: ParticipantMatchData | undefined;
-
   for (const participantStats of participantsStats) {
     const startItems = filterItems(participantStats.items, "starting");
 
@@ -29,7 +26,7 @@ export async function mergeInfosAndStats(
     ) as CompletedItemsIds;
 
     const participantInfo = participantsInfos[participantInfosKey];
-    
+
     delete participantInfo.puuid;
 
     const participantMatchData: ParticipantMatchData = {
@@ -41,15 +38,7 @@ export async function mergeInfosAndStats(
     };
 
     await GameInfo.create(participantMatchData);
-
-    const isAccountSearchedMatchData = participantStats.puuid === puuidSearched;
-
-    if (isAccountSearchedMatchData) {
-      accountMatchData = participantMatchData;
-    }
   }
-
-  return accountMatchData as ParticipantMatchData;
 }
 
 function filterItems(items: ItemDetails[], typeFiltered: string) {

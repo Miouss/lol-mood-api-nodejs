@@ -1,3 +1,26 @@
+import { ParticipantMatchDataResponse } from "../../database/models";
+import { AccountWithRank } from "../../riot-api/types";
+
+export interface Locals {
+  region: string;
+  host: string;
+  account: AccountWithRank;
+  matchesData: ParticipantMatchDataResponse[];
+  topChampsByMostPlayed: [string, ChampStats][];
+}
+
+export interface ChampStats {
+  wins: number;
+  played: number;
+  winrate: number;
+  kills: number;
+  deaths: number;
+  assists: number;
+  killsAvg: number;
+  deathsAvg: number;
+  assistsAvg: number;
+}
+
 export interface ParticipantInfosFiltered extends AssetsIds {
   puuid?: string;
   accountId: number;

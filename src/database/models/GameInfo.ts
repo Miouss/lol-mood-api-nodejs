@@ -42,7 +42,7 @@ export class GameInfo {
 
     convertAllRepetitivesFields(result);
 
-    return (result as ParticipantMatchData[])[0];
+    return (result as ParticipantMatchDataResponse[])[0] as GameStats;
   }
 
   public static async getChampStats(champName: string) {
@@ -95,4 +95,33 @@ export interface ParticipantMatchData {
   runeId2: number;
   runeId3: number;
   runeId4: number;
+}
+
+export interface ParticipantMatchDataResponse {
+  champName: string;
+  matchId: string;
+
+  accountId: number;
+  gameId: number;
+  champId: number;
+
+  skillsOrder: string;
+  evolvesOrder: string;
+  lane: string;
+  win: boolean;
+  kills: number;
+  deaths: number;
+  assists: number;
+
+  statsMods: number[];
+  summoners: number[];
+  runes: number[];
+  items: number[];
+  startItems: number[];
+  completeItems: number[];
+}
+
+export interface GameStats extends ParticipantMatchDataResponse {
+  matchId: string;
+  champName: string;
 }

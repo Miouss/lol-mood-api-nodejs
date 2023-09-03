@@ -6,7 +6,6 @@ export function checkParams(req: Request, _: Response, next: NextFunction) {
       [Paths.account]: checkAccountPath,
       [Paths.matches]: checkMatchesPath,
     };
-    console.log(req.route.path);
     checkFctByPath[req.route.path](req.params);
 
     next();

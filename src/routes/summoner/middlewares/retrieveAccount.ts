@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { getUpToDateAccount, getUpToDateRank } from "../../../riot-api/utils";
 import { getStoredAccount, updateAccount } from "../utils";
+import { Locals } from "../types";
 
 export async function retrieveAccount(
   req: Request,
-  res: Response,
+  res: Response<any, Locals>,
   next: NextFunction
 ) {
   try {
