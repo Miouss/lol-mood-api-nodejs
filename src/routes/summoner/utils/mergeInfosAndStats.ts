@@ -8,7 +8,9 @@ export async function mergeInfosAndStats(
   participantsStats: ParticipantStatsType[]
 ) {
   for (const participantStats of participantsStats) {
-    const startItems = filterItems(participantStats.items, "starting");
+    const startItems = filterItems(participantStats.items, "starting").sort(
+      (a, b) => a - b
+    );
 
     const completedItems = filterItems(participantStats.items, "completed");
 

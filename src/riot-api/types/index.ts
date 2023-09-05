@@ -9,6 +9,8 @@ export type Perks = components["schemas"]["match-v5.PerksDto"];
 export type PerkStyle = components["schemas"]["match-v5.PerkStyleDto"];
 export type PerkStats = components["schemas"]["match-v5.PerkStatsDto"];
 export type MatchTimeline = components["schemas"]["match-v5.MatchTimelineDto"];
+export type MatchTimelineInfoFrameEvent =
+  components["schemas"]["match-v5.MatchTimelineInfoFrameEvent"];
 
 export interface AccountWithRank extends PartialAccount, SortedRank {}
 

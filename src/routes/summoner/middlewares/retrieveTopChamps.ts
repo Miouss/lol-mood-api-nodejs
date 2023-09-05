@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { ChampStats, Locals } from "../types";
+import { GameInfo } from "../../../database/models";
+import { twoDecimalsNum } from "../../utils";
 
-export function retrieveTopChamps(
+export async function retrieveTopChamps(
   req: Request,
   res: Response<any, Locals>,
   next: NextFunction
@@ -48,6 +50,8 @@ export function retrieveTopChamps(
 
     const topChampsByMostPlayed = sortChampsByMostPlayed(topChamps);
 
+    await GameInfo.getByChamp("Ezreal");
+
     res.locals.topChampsByMostPlayed = topChampsByMostPlayed;
 
     next();
@@ -67,10 +71,6 @@ function sortChampsByMostPlayed(topChamps: TopChamps) {
 
     return 1;
   });
-}
-
-function twoDecimalsNum(num: number) {
-  return parseFloat(num.toFixed(2));
 }
 
 interface TopChamps {

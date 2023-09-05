@@ -3,8 +3,8 @@ import { Request, Response, NextFunction } from "express";
 export function checkParams(req: Request, _: Response, next: NextFunction) {
   try {
     const checkFctByPath: CheckFctByPath = {
-      [Paths.account]: checkAccountPath,
-      [Paths.matches]: checkMatchesPath,
+      [Paths.summoner]: checkAccountPath,
+      [Paths.champ]: checkMatchesPath,
     };
     checkFctByPath[req.route.path](req.params);
 
@@ -25,12 +25,8 @@ function checkAccountPath(params: Params) {
 }
 
 function checkMatchesPath(params: Params) {
-  if (params.regionCode === undefined) {
-    throw new Error("Missing region");
-  }
-
-  if (params.puuid === undefined) {
-    throw new Error("Missing matchId");
+  if (params.champName === undefined) {
+    throw new Error("Missing champion name");
   }
 }
 
@@ -42,6 +38,6 @@ type CheckFct = (params: Params) => void;
 type Params = Record<string, string>;
 
 enum Paths {
-  "matches" = "/matches/:regionCode/:puuid",
-  "account" = "/:regionCode/:summonerName",
+  "summoner" = "/:regionCode/:summonerName",
+  "champ" = "/:champName",
 }

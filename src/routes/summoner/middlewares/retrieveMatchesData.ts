@@ -27,24 +27,23 @@ export async function retrieveMatchesData(
     for (const matchId of matchList) {
       const isMatchStored = await Game.exists(matchId);
 
-      if (!isMatchStored) {
+      const handleParticipantMatchData = async () => {
         const participantsInfos = await getParticipantsInfos(region, matchId);
-
         const participantsStats = await getParticipantsStats(region, matchId);
 
         await mergeInfosAndStats(participantsInfos, participantsStats);
-      }
+      };
 
-      const matchData = await GameInfo.getGameStatsByPuuid(
-        matchId,
-        account.puuid
-      );
+      if (!isMatchStored) await handleParticipantMatchData();
+
+      const matchData = await GameInfo.getByPuuid(matchId, account.puuid);
+
+      if (!matchData) await handleParticipantMatchData();
 
       matchesData.push(matchData);
     }
 
     res.locals.matchesData = matchesData;
-
     next();
   } catch (err) {
     next(err);

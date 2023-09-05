@@ -1,5 +1,8 @@
 import itemJSON from "../../../assets/item.json" assert { type: "json" };
-import { MatchTimeline } from "../../../riot-api/types";
+import {
+  MatchTimeline,
+  MatchTimelineInfoFrameEvent,
+} from "../../../riot-api/types";
 
 export async function extractParticipantsStats(matchTimeline: MatchTimeline) {
   const participantsStats = createParticipantsStats(
@@ -22,16 +25,21 @@ export async function extractParticipantsStats(matchTimeline: MatchTimeline) {
 }
 
 function participant(participantStats: ParticipantStatsType) {
-  const handleItemPurchased = (event: any) => {
-    const { total, purchasable } = (itemJSON as any).data[event.itemId].gold;
+  const handleItemPurchased = (event: MatchTimelineInfoFrameEvent) => {
+    const { itemId, timestamp } = event as {
+      itemId: number;
+      timestamp: number;
+    };
+
+    const { total, purchasable } = (itemJSON as any).data[itemId].gold;
 
     const isItem = purchasable && total > 0;
 
     if (!isItem) return;
 
-    const { description, into } = (itemJSON as any).data[event.itemId];
+    const { description, into } = (itemJSON as any).data[itemId];
 
-    const isNearBeginningOfGame = event.timestamp < 60000;
+    const isNearBeginningOfGame = timestamp < 60000;
 
     const isMythicItem = description.includes("Mythic Passive");
     const isLegendaryItem = !isMythicItem && !into && total > 1000;
@@ -42,12 +50,12 @@ function participant(participantStats: ParticipantStatsType) {
     if (!isStartingItem && !isCompletedItem) return;
 
     participantStats.items.push({
-      itemId: event.itemId,
+      itemId,
       type: isStartingItem ? "starting" : "completed",
     });
   };
 
-  const handleSkillLevelUp = (event: any) => {
+  const handleSkillLevelUp = (event: MatchTimelineInfoFrameEvent) => {
     const { skillSlot, levelUpType } = event;
 
     const levelUpTypeLookup: Record<SubEventType, Function> = {
@@ -65,7 +73,7 @@ function participant(participantStats: ParticipantStatsType) {
   };
 
   return {
-    event: (event: any) => ({
+    event: (event: MatchTimelineInfoFrameEvent) => ({
       [EventType.ItemPurchased]: () => handleItemPurchased(event),
       [EventType.SkillLevelUp]: () => handleSkillLevelUp(event),
       [EventType.ItemUndo]: handleItemUndo,
@@ -88,8 +96,8 @@ export function createParticipantsStats(
     );
 }
 
-export function isEventTypeHandled(type: any) {
-  return Object.values(EventType).includes(type);
+export function isEventTypeHandled(type: MatchTimelineInfoFrameEvent["type"]) {
+  return Object.values(EventType).includes(type as EventType);
 }
 
 interface ParticipantsWithPuuidAndIdType {

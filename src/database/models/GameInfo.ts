@@ -28,7 +28,7 @@ export class GameInfo {
     await executeQuery(query, "setGameInfo");
   }
 
-  public static async getGameStatsByPuuid(gameId: string, puuid: string) {
+  public static async getByPuuid(gameId: string, puuid: string) {
     const query = select(
       `${this.tables.game}.identifier as matchId`,
       `${this.tables.champ}.name as champName`,
@@ -38,23 +38,25 @@ export class GameInfo {
       .innerJoin(this.tables.game, this.tables.champ, this.tables.account)
       .where({ identifier: gameId, puuid });
 
-    const result = await executeQuery(query, "getGameStatsByPuuid");
+    const result = await executeQuery(query, "getByPuuid");
 
     convertAllRepetitivesFields(result);
 
     return (result as ParticipantMatchDataResponse[])[0] as GameStats;
   }
 
-  public static async getChampStats(champName: string) {
+  public static async getByChamp(champName: string) {
     const query = select(`${this.table}.*`)
       .from(this.table)
       .innerJoin(this.tables.champ)
       .where({ [`${this.tables.champ}.name`]: champName });
 
-    const result = await executeQuery(query, "getChampStats");
+    const result = await executeQuery(query, "getByChamp");
     if (!result) return;
 
     convertAllRepetitivesFields(result);
+
+    return result as ParticipantMatchDataResponse[];
   }
 }
 
@@ -118,7 +120,7 @@ export interface ParticipantMatchDataResponse {
   runes: number[];
   items: number[];
   startItems: number[];
-  completeItems: number[];
+  completedItems: number[];
 }
 
 export interface GameStats extends ParticipantMatchDataResponse {

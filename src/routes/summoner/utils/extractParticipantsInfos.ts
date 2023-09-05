@@ -59,7 +59,9 @@ async function fillParticipantsInfos(
 }
 
 async function retrieveGameId(gameId: string) {
-  await Game.create(gameId);
+  const isGameExists = await Game.exists(gameId);
+
+  if (!isGameExists) await Game.create(gameId);
 
   return await Game.getId(gameId);
 }
