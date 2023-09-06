@@ -52,7 +52,7 @@ export class GameInfo {
       .where({ [`${this.tables.champ}.name`]: champName });
 
     const result = await executeQuery(query, "getByChamp");
-    if (!result) return;
+    if (!result) throw new Error("No games found for this champion");
 
     convertAllRepetitivesFields(result);
 
