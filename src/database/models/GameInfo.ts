@@ -115,6 +115,10 @@ export interface ParticipantMatchDataResponse {
   deaths: number;
   assists: number;
 
+  primaryStyleId: number;
+  subStyleId: number;
+  perkId: number;
+
   statsMods: number[];
   summoners: number[];
   runes: number[];
