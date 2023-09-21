@@ -11,34 +11,117 @@ export function getStats(
   try {
     const { games } = res.locals;
 
+    const skillsOrderStats = getSkillsOrderStats(games);
+    const evolvesOrderStats = getEvolvesPriorityStats(games);
     const startItemsStats = getStartItemsStatsList(games);
-    const completedItemsStats = getCompletedItemsList(games);
+    const coreItemsStats = getCoreItemsStatsList(games);
+    const nthCompletedItemsStats = getNthCompletedItemsList(games);
     const mostPlayedStatsMods = getMostPlayedStatsMods(games);
     const fullRunesStats = getRunesStatsList(games);
 
     const items = {
+      skillsOrderStats,
       starting: {
-        mostPlayed: getSorted(startItemsStats).ByMostPlayed(),
-        mostWinrate: getSorted(startItemsStats).ByMostWinrate(),
+        mostPlayed: getSorted(startItemsStats).ByMostPlayed()[0],
+        mostWinrate: getSorted(startItemsStats).ByMostWinrate()[0],
       },
       completed: {
-        mostPlayed: completedItemsStats.map((stats) =>
-          getSorted(stats.items).ByMostPlayed()
-        ),
-        mostWinrate: completedItemsStats.map((stats) =>
-          getSorted(stats.items).ByMostWinrate()
-        ),
+        core: {
+          mostPlayed: getSorted(coreItemsStats).ByMostPlayed()[0],
+          mostWinrate: getSorted(coreItemsStats).ByMostWinrate()[0],
+        },
+        nth: {
+          mostPlayed: nthCompletedItemsStats.map((stats) =>
+            getSorted(stats.items).ByMostPlayed()
+          ),
+          mostWinrate: nthCompletedItemsStats.map((stats) =>
+            getSorted(stats.items).ByMostWinrate()
+          ),
+        },
       },
     };
 
     res.locals.items = items;
     res.locals.mostPlayedStatsMods = mostPlayedStatsMods;
-    res.locals.runesStats = fullRunesStats;
+    res.locals.runes = fullRunesStats;
+    res.locals.skillsOrder = skillsOrderStats;
+    res.locals.evolvesOrder = evolvesOrderStats;
 
     next();
   } catch (err) {
     next(err);
   }
+}
+
+function getEvolvesPriorityStats(games: ParticipantMatchDataResponse[]) {
+  const evolvesOrderStats: EvolvesOrderStats[] = [];
+  const totalPlayed = games.length;
+
+  games.forEach((game) => {
+    const evolvesOrder = game.evolvesOrder;
+
+    if (!evolvesOrder) return;
+    const index = evolvesOrderStats.findIndex(
+      ({ order }) => order.slice(0, evolvesOrder.length) === evolvesOrder
+    );
+
+    const hasFoundIndex = index >= 0;
+
+    if (!hasFoundIndex) {
+      pushDefaultStats(evolvesOrderStats, { order: evolvesOrder });
+    }
+
+    const j = getRightIndex(evolvesOrderStats, index);
+
+    evolvesOrderStats[j].played++;
+    evolvesOrderStats[j].wins += Number(game.win);
+  });
+
+  if (!evolvesOrderStats.length) return null;
+
+  evolvesOrderStats.forEach((stats) => {
+    calculatePlayrate(stats, totalPlayed);
+    calculateWinrate(stats);
+  });
+
+  return {
+    mostPlayed: getSorted(evolvesOrderStats).ByMostPlayed()[0],
+    mostWinrate: getSorted(evolvesOrderStats).ByMostWinrate()[0],
+  };
+}
+
+function getSkillsOrderStats(games: ParticipantMatchDataResponse[]) {
+  const skillsOrderStats: SkillOrderStats[] = [];
+  const totalPlayed = games.length;
+
+  games.forEach((game) => {
+    const skillsOrder = game.skillsOrder;
+
+    const index = skillsOrderStats.findIndex(
+      ({ order }) => order.slice(0, skillsOrder.length) === skillsOrder
+    );
+
+    const hasFoundIndex = index >= 0;
+
+    if (!hasFoundIndex) {
+      pushDefaultStats(skillsOrderStats, { order: skillsOrder });
+    }
+
+    const j = getRightIndex(skillsOrderStats, index);
+
+    skillsOrderStats[j].played++;
+    skillsOrderStats[j].wins += Number(game.win);
+  });
+
+  skillsOrderStats.forEach((stats) => {
+    calculatePlayrate(stats, totalPlayed);
+    calculateWinrate(stats);
+  });
+
+  return {
+    mostPlayed: getSorted(skillsOrderStats).ByMostPlayed()[0],
+    mostWinrate: getSorted(skillsOrderStats).ByMostWinrate()[0],
+  };
 }
 
 function getRunesStatsList(games: ParticipantMatchDataResponse[]) {
@@ -120,42 +203,50 @@ function getRunesStatsList(games: ParticipantMatchDataResponse[]) {
     calculateWinrate(styleStats);
   });
 
-  return { primaryRunesStats, secondaryRunesStats, stylesStats };
+  const runes = {
+    mostPlayed: {
+      primary: getSorted(primaryRunesStats).ByMostPlayed()[0],
+      secondary: getSorted(secondaryRunesStats).ByMostPlayed()[0],
+      styles: getSorted(stylesStats).ByMostPlayed()[0],
+    },
+
+    mostWinrate: {
+      primary: getSorted(primaryRunesStats).ByMostWinrate()[0],
+      secondary: getSorted(secondaryRunesStats).ByMostWinrate()[0],
+      styles: getSorted(stylesStats).ByMostWinrate()[0],
+    },
+  };
+
+  return runes;
 }
 
 function getMostPlayedStatsMods(games: ParticipantMatchDataResponse[]) {
-  const statsModsStatsList: StatsModStats[][] = [[], [], []];
-  const defaultStats: StatsModStats = { statMod: 0, played: 0 };
+  const statsModsStatsList: StatsModStats[] = [];
+  const defaultStats: StatsModStats = { mods: [], played: 0, playrate: 0 };
 
-  games.forEach((game) => {
-    game.statsMods.forEach((statMod, i) => {
-      const statsModsStats = statsModsStatsList[i];
+  games.forEach(({ statsMods }) => {
+    const index = statsModsStatsList.findIndex(({ mods }) =>
+      mods.every((currMod, i) => currMod === statsMods[i])
+    );
 
-      const index = statsModsStats.findIndex(
-        (currStatMod) => statMod === currStatMod.statMod
-      );
+    const hasFoundIndex = index >= 0;
 
-      const hasFoundIndex = index >= 0;
+    if (!hasFoundIndex) {
+      statsModsStatsList.push({ ...defaultStats, mods: statsMods });
+    }
 
-      if (!hasFoundIndex) {
-        statsModsStats.push({ ...defaultStats, statMod });
-      }
+    const j = getRightIndex(statsModsStatsList, index);
 
-      const j = getRightIndex(statsModsStats, index);
-
-      statsModsStats[j].played++;
-    });
+    statsModsStatsList[j].played++;
   });
 
-  statsModsStatsList.forEach((statsMods) => {
-    sortByMostPlayed(statsMods);
+  statsModsStatsList.forEach((stats) => {
+    calculatePlayrate(stats, games.length);
   });
 
-  const mostPlayedStatsMods = statsModsStatsList.map(
-    (statsMods) => statsMods[0].statMod
-  );
+  sortByMostPlayed(statsModsStatsList);
 
-  return mostPlayedStatsMods;
+  return statsModsStatsList[0];
 }
 
 function getStartItemsStatsList(games: ParticipantMatchDataResponse[]) {
@@ -187,17 +278,52 @@ function getStartItemsStatsList(games: ParticipantMatchDataResponse[]) {
   return startItemsStatsList;
 }
 
-function getCompletedItemsList(games: ParticipantMatchDataResponse[]) {
-  const NUM_COMPLETED_ITEMS = 5;
-  const defaultItemsStats = { items: [], totalPlayed: 0 };
-
-  const completedItemsStatsList: CompletedItemsStatsList[] =
-    createArrayOfSameObj(defaultItemsStats, NUM_COMPLETED_ITEMS);
+function getCoreItemsStatsList(games: ParticipantMatchDataResponse[]) {
+  const coreItemsStatsList: CoreCompletedItemsStats[] = [];
+  const totalPlayed = games.length;
 
   games.forEach((game) => {
-    game.completedItems.every((itemId, i) => {
-      if (!itemId) return false;
+    const coreItems = game.completedItems.slice(0, 3);
 
+    const index = coreItemsStatsList.findIndex((currItemsStats) =>
+      currItemsStats.items.every((currItem, i) => coreItems.includes(currItem))
+    );
+
+    const hasFoundIndex = index >= 0;
+
+    if (!hasFoundIndex) {
+      pushDefaultStats(coreItemsStatsList, { items: coreItems });
+    }
+
+    const j = getRightIndex(coreItemsStatsList, index);
+
+    coreItemsStatsList[j].played++;
+    coreItemsStatsList[j].wins += Number(game.win);
+  });
+
+  coreItemsStatsList.forEach((stats) => {
+    calculatePlayrate(stats, totalPlayed);
+    calculateWinrate(stats);
+  });
+
+  return coreItemsStatsList;
+}
+
+function getNthCompletedItemsList(games: ParticipantMatchDataResponse[]) {
+  const NTH_COMPLETED_ITEMS_START_INDEX = 3;
+  const defaultItemsStats = { items: [], totalPlayed: 0 };
+
+  const completedItemsStatsList: NthCompletedItemsStatsList[] =
+    createArrayOfSameObj(defaultItemsStats, NTH_COMPLETED_ITEMS_START_INDEX);
+
+  games.forEach((game) => {
+    const completeditems = game.completedItems.slice(
+      NTH_COMPLETED_ITEMS_START_INDEX,
+      5
+    );
+
+    completeditems.every((itemId, i) => {
+      if (!itemId) return false;
       const items = completedItemsStatsList[i].items;
 
       const index = items.findIndex((currItem) => itemId === currItem.itemId);
@@ -219,7 +345,7 @@ function getCompletedItemsList(games: ParticipantMatchDataResponse[]) {
   });
 
   completedItemsStatsList.forEach((stats) => {
-    stats.items.forEach((itemStats: CompletedItemsStats | number) => {
+    stats.items.forEach((itemStats: NthCompletedItemsStats | number) => {
       const isTotalPlayedProp = typeof itemStats === "number";
 
       if (!isTotalPlayedProp) {
@@ -258,7 +384,10 @@ function calculateWinrate<T extends Stats>(stats: T) {
   stats.winrate = twoDecimalsNumByPercent(stats.wins / stats.played);
 }
 
-function calculatePlayrate<T extends Stats>(stats: T, totalPlayed: number) {
+function calculatePlayrate<T extends Pick<Stats, "played" | "playrate">>(
+  stats: T,
+  totalPlayed: number
+) {
   stats.playrate = twoDecimalsNumByPercent(stats.played / totalPlayed);
 }
 
@@ -269,21 +398,44 @@ function sortByMostPlayed<T extends { played: number }>(statsList: T[]) {
 function getSorted<T extends Stats>(arr: T[]) {
   return {
     ByMostPlayed: () => arr.sort((a, b) => b.played - a.played),
-    ByMostWinrate: () => arr.sort((a, b) => b.winrate - a.winrate),
+    ByMostWinrate: () =>
+      arr.sort((a, b) => {
+        const minPlayrate = 10;
+        const betterWinrate = b.winrate - a.winrate > 0;
+        const aHasMinPlayrate = a.playrate >= minPlayrate;
+        const bHasMinPlayrate = b.playrate >= minPlayrate;
+
+        if (!aHasMinPlayrate && bHasMinPlayrate) return 1;
+        else if (betterWinrate) return 1;
+        return -1;
+      }),
   };
 }
 
 interface StatsModStats {
-  statMod: number;
+  mods: number[];
   played: number;
+  playrate: number;
 }
 
-interface CompletedItemsStatsList {
-  items: CompletedItemsStats[];
+interface EvolvesOrderStats extends Stats {
+  order: string;
+}
+
+interface SkillOrderStats extends Stats {
+  order: string;
+}
+
+interface NthCompletedItemsStatsList {
+  items: NthCompletedItemsStats[];
   totalPlayed: number;
 }
 
-export interface CompletedItemsStats extends Stats {
+export interface CoreCompletedItemsStats extends Stats {
+  items: number[];
+}
+
+export interface NthCompletedItemsStats extends Stats {
   itemId: number;
 }
 
