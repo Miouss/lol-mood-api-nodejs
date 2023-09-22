@@ -13,14 +13,17 @@ import {
 import { Locals } from "../types";
 
 export async function retrieveMatchesData(
-  _: Request,
+  req: Request,
   res: Response<any, Locals>,
   next: NextFunction
 ) {
   try {
     const { region, account } = res.locals;
 
-    const matchList = await riot(region).getMatchListByPuuid(account.puuid);
+    const matchList = await riot(region).getMatchListByPuuid(
+      account.puuid,
+      req.params.count
+    );
 
     let matchesData: ParticipantMatchDataResponse[] = [];
 

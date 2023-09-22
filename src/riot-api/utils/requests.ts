@@ -4,7 +4,11 @@ import { MatchInfo, MatchTimeline, Rank, PartialAccount } from "../types";
 const DOMAIN = ".api.riotgames.com/lol/";
 const ACCOUNT = "summoner/v4/summoners/by-name";
 const RANK = "league/v4/entries/by-summoner";
-const MATCHES = ["match/v5/matches/by-puuid", "ids?start=0&count=60&queue=420"];
+const MATCHES = [
+  "match/v5/matches/by-puuid",
+  "ids?start=0&count=",
+  "&queue=420",
+];
 const MATCH_TIMELINE = ["match/v5/matches", "timeline"];
 const MATCH_INFO = "match/v5/matches";
 
@@ -14,8 +18,10 @@ export function riot(host: string) {
       await getRequest<PartialAccount>(endpoint(host, ACCOUNT, summonerName)),
     getSummonerRankById: async (summonerId: string) =>
       await getRequest<Rank[]>(endpoint(host, RANK, summonerId)),
-    getMatchListByPuuid: async (puuid: string) =>
-      await getRequest<string[]>(endpoint(host, MATCHES[0], puuid, MATCHES[1])),
+    getMatchListByPuuid: async (puuid: string, count: string = "10") =>
+      await getRequest<string[]>(
+        endpoint(host, MATCHES[0], puuid, MATCHES[1] + count + MATCHES[2])
+      ),
     getMatchTimelineByMatchId: async (matchId: string) =>
       await getRequest<MatchTimeline>(
         endpoint(host, MATCH_TIMELINE[0], matchId, MATCH_TIMELINE[1])

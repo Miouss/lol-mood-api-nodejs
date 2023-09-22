@@ -38,6 +38,6 @@ type CheckFct = (params: Params) => void;
 type Params = Record<string, string>;
 
 enum Paths {
-  "summoner" = "/:regionCode/:summonerName",
+  "summoner" = "/:regionCode/:summonerName/games/:count?",
   "champ" = "/:champName",
 }

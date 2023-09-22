@@ -10,7 +10,7 @@ import {
 const summoner = Router();
 
 summoner.get(
-  "/:regionCode/:summonerName",
+  "/:regionCode/:summonerName/games/:count?",
   checkParams,
   convertRegion,
   retrieveAccount,
