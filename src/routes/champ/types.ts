@@ -7,4 +7,5 @@ export interface Locals {
   mostPlayedStatsMods: unknown;
   skillsOrder: unknown;
   evolvesOrder: unknown;
+  summoners: unknown;
 }

@@ -7,10 +7,23 @@ export function sendStats(
   next: NextFunction
 ) {
   try {
-    const { items, mostPlayedStatsMods, runes, skillsOrder, evolvesOrder } =
-      res.locals;
+    const {
+      items,
+      mostPlayedStatsMods,
+      runes,
+      skillsOrder,
+      evolvesOrder,
+      summoners,
+    } = res.locals;
 
-    res.json({ items, mostPlayedStatsMods, runes, skillsOrder, evolvesOrder });
+    res.json({
+      items,
+      mostPlayedStatsMods,
+      runes,
+      skillsOrder,
+      evolvesOrder,
+      summoners,
+    });
   } catch (err) {
     next(err);
   }

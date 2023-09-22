@@ -11,6 +11,7 @@ export function getStats(
   try {
     const { games } = res.locals;
 
+    const sumsStats = getSummonerSpellsStats(games);
     const skillsOrderStats = getSkillsOrderStats(games);
     const evolvesOrderStats = getEvolvesPriorityStats(games);
     const startItemsStats = getStartItemsStatsList(games);
@@ -20,7 +21,6 @@ export function getStats(
     const fullRunesStats = getRunesStatsList(games);
 
     const items = {
-      skillsOrderStats,
       starting: {
         mostPlayed: getSorted(startItemsStats).ByMostPlayed()[0],
         mostWinrate: getSorted(startItemsStats).ByMostWinrate()[0],
@@ -46,11 +46,46 @@ export function getStats(
     res.locals.runes = fullRunesStats;
     res.locals.skillsOrder = skillsOrderStats;
     res.locals.evolvesOrder = evolvesOrderStats;
+    res.locals.summoners = sumsStats;
 
     next();
   } catch (err) {
     next(err);
   }
+}
+
+function getSummonerSpellsStats(games: ParticipantMatchDataResponse[]) {
+  const summonerSpellsStats: SummonerSpellsStats[] = [];
+  const totalPlayed = games.length;
+
+  games.forEach((game) => {
+    const { summoners, win } = game;
+
+    const index = summonerSpellsStats.findIndex(
+      ({ sums }) => sums.includes(summoners[0]) && sums.includes(summoners[1])
+    );
+
+    const hasFoundIndex = index >= 0;
+
+    if (!hasFoundIndex) {
+      pushDefaultStats(summonerSpellsStats, { sums: summoners });
+    }
+
+    const j = getRightIndex(summonerSpellsStats, index);
+
+    summonerSpellsStats[j].played++;
+    summonerSpellsStats[j].wins += Number(win);
+  });
+
+  summonerSpellsStats.forEach((stats) => {
+    calculatePlayrate(stats, totalPlayed);
+    calculateWinrate(stats);
+  });
+
+  return {
+    mostPlayed: getSorted(summonerSpellsStats).ByMostPlayed()[0],
+    mostWinrate: getSorted(summonerSpellsStats).ByMostWinrate()[0],
+  };
 }
 
 function getEvolvesPriorityStats(games: ParticipantMatchDataResponse[]) {
@@ -429,6 +464,10 @@ interface SkillOrderStats extends Stats {
 interface NthCompletedItemsStatsList {
   items: NthCompletedItemsStats[];
   totalPlayed: number;
+}
+
+interface SummonerSpellsStats extends Stats {
+  sums: number[];
 }
 
 export interface CoreCompletedItemsStats extends Stats {
