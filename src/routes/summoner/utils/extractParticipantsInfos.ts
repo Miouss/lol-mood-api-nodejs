@@ -96,9 +96,9 @@ function fillAssetIds(
   };
 
   assetIds[puuid];
-  assetIds[puuid]["primaryStyleId"] = primaryStyle.style;
-  assetIds[puuid]["subStyleId"] = subStyle.style;
-  assetIds[puuid]["perkId"] = primaryStyle.selections[0].perk;
+  assetIds[puuid].primaryStyleId = primaryStyle.style;
+  assetIds[puuid].subStyleId = subStyle.style;
+  assetIds[puuid].perkId = primaryStyle.selections[0].perk;
 }
 
 function extractRepetitiveFieldsObj(
@@ -120,8 +120,13 @@ function extractRepetitiveFieldsObj(
     );
   };
 
-  const extractItems = () =>
-    createData(convertRepetitivesFields(participant, 0, "item"), "itemId");
+  const extractItems = () => {
+    const data = convertRepetitivesFields(participant, 0, "item");
+
+    if (data.length > 6) data.splice(6, 1);
+
+    return createData(data, "itemId");
+  };
 
   const extractSummoners = () =>
     createData(
@@ -186,7 +191,6 @@ interface RepetitiveFieldsForDB {
   itemId3?: number;
   itemId4?: number;
   itemId5?: number;
-  itemId6?: number;
   statsModId0: StatMod;
   statsModId1: StatMod;
   statsModId2: StatMod;
