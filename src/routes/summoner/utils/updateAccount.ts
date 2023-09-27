@@ -26,7 +26,7 @@ export async function updateAccount(
       await Account.update(upToDateAccountWithRank);
     }
   } else {
-    await Account.create(upToDateAccountWithRank);
+    await Account.add(upToDateAccountWithRank);
   }
 }
 
