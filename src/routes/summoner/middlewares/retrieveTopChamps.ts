@@ -13,8 +13,9 @@ export async function retrieveTopChamps(
 
     const topChamps: TopChamps = {};
 
-    matchesData.forEach((matchData) => {
-      const { champName, win, kills, deaths, assists } = matchData;
+    matchesData.forEach(({ champName, win, kills, deaths, assists }) => {
+      const getAvgOf = (stat: number) =>
+        twoDecimalsNum(stat / champStats.played);
 
       const champStats = topChamps[champName] || {
         wins: 0,
@@ -29,28 +30,20 @@ export async function retrieveTopChamps(
 
       champStats.wins += win ? 1 : 0;
       champStats.played += 1;
-      champStats.winrate = Math.round(
+      champStats.winrate = twoDecimalsNum(
         (champStats.wins / champStats.played) * 100
       );
       champStats.kills += kills;
       champStats.deaths += deaths;
       champStats.assists += assists;
-      champStats.killsAvg = twoDecimalsNum(
-        champStats.kills / champStats.played
-      );
-      champStats.deathsAvg = twoDecimalsNum(
-        champStats.deaths / champStats.played
-      );
-      champStats.assistsAvg = twoDecimalsNum(
-        champStats.assists / champStats.played
-      );
+      champStats.killsAvg = getAvgOf(champStats.kills);
+      champStats.deathsAvg = getAvgOf(champStats.deaths);
+      champStats.assistsAvg = getAvgOf(champStats.assists);
 
       topChamps[champName] = champStats;
     });
 
     const topChampsByMostPlayed = sortChampsByMostPlayed(topChamps);
-
-    await GameInfo.getByChamp("Ezreal");
 
     res.locals.topChampsByMostPlayed = topChampsByMostPlayed;
 
