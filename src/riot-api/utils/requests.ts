@@ -39,13 +39,21 @@ async function getRequest<T>(url: string): Promise<T> {
   const options = createRiotOptions();
 
   const response = await fetch(url, options);
-  if (!response.ok)
-    throw new Error(`Request to ${url} failed with status ${response.status}`);
+
+  if (!response.ok) {
+    const errMsg = errMsgs[response.status] || "An unknown error occurred.";
+    throw new Error(errMsg);
+  }
 
   const data = await response.json();
 
   return data as T;
 }
+
+const errMsgs: Record<number, string> = {
+  429: "You reach the rate limit of the Riot API. Please try again in 3 minutes after the cooldown is refreshed.",
+  403: "Your API key is invalid. Please check the API key and try again.",
+};
 
 function createRiotOptions() {
   const headers: HeadersInit = {
@@ -54,7 +62,6 @@ function createRiotOptions() {
   };
 
   return {
-    method: "GET",
     headers,
   };
 }
