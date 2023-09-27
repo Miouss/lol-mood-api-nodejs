@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  api:
+    build: .
+    container_name: lolmood_api
+    ports:
+      - "3000:3000"
+  db:
+    image: "mysql:latest"
+    container_name: lolmood_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./src/database/database.sql:/docker-entrypoint-initdb.d/database.sql
+    restart: unless-stopped

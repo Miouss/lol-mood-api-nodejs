@@ -2,17 +2,26 @@ import express from "express";
 import { champ, summoner } from "./routes";
 import { errorHandler } from "./routes/middlewares";
 import cors from "cors";
+import { connectToDatabase } from "./database/config";
+import dotenv from "dotenv";
+dotenv.config();
 
-cors({ origin: "http://localhost:3001" });
-const app = express();
-const PORT = 3000;
+try {
+  await connectToDatabase();
 
-app.use(cors());
-app.use("/api/summoner", summoner);
-app.use("/api/champ", champ);
+  cors({ origin: "http://localhost:3001" });
+  const app = express();
+  const PORT = process.env.PORT || 3002;
 
-app.use(errorHandler);
+  app.use(cors());
+  app.use("/api/summoner", summoner);
+  app.use("/api/champ", champ);
 
-app.listen(PORT, () => {
-  console.log("Server is running on port 3000\n");
-});
+  app.use(errorHandler);
+
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT} \n`);
+  });
+} catch (error) {
+  console.error(error);
+}
