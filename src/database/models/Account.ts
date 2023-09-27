@@ -4,7 +4,7 @@ import { executeQuery, getRowId, isStored } from "../utils";
 export class Account {
   private static table = "account";
 
-  public static async create(data: StoredAccount) {
+  public static async add(data: StoredAccount) {
     const query = insertInto(this.table).values(
       convertDataForDB(data) as unknown as Record<string, string | number>
     );
@@ -12,7 +12,7 @@ export class Account {
     await executeQuery(query, "create account");
   }
 
-  public static async createUnknownAccount(puuid: string) {
+  public static async create(puuid: string) {
     const query = insertInto(this.table).values({ puuid });
 
     await executeQuery(query, "create unknown account");
