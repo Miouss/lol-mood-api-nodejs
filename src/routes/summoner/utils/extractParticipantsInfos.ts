@@ -8,7 +8,7 @@ export async function extractParticipantsInfos(matchInfos: MatchInfo) {
   const assetsIds: any = {};
   const matchId = matchInfos.metadata.matchId;
 
-  const gameId = await retrieveGameId(matchId);
+  const gameId = await getId(matchId, Game);
 
   for (const participant of matchInfos.info.participants) {
     const repetitiveFields = extractRepetitiveFieldsObj(participant);
@@ -41,8 +41,8 @@ async function fillParticipantsInfos(
     championName,
   } = participant;
 
-  const accountId = await retrieveAccountId(puuid);
-  const champId = await retrieveChampId(championName);
+  const accountId = await getId(puuid, Account);
+  const champId = await getId(championName, Champ);
 
   participantInfos.push({
     accountId,
@@ -58,28 +58,18 @@ async function fillParticipantsInfos(
   });
 }
 
-async function retrieveGameId(gameId: string) {
-  const isGameExists = await Game.exists(gameId);
+async function getId<T extends Table>(condition: string, table: T) {
+  const isFound = await table.exists(condition);
 
-  if (!isGameExists) await Game.create(gameId);
+  if (!isFound) await table.create(condition);
 
-  return await Game.getId(gameId);
+  return await table.getId(condition);
 }
 
-async function retrieveChampId(championName: string) {
-  const isChampExists = await Champ.exists(championName);
-
-  if (!isChampExists) await Champ.create(championName);
-
-  return await Champ.getId(championName);
-}
-
-async function retrieveAccountId(puuid: string) {
-  const isAccountExists = await Account.exists(puuid);
-
-  if (!isAccountExists) await Account.createUnknownAccount(puuid);
-
-  return await Account.getId(puuid);
+interface Table {
+  exists: (condition: string) => Promise<boolean>;
+  create: (condition: string) => Promise<void>;
+  getId: (condition: string) => Promise<number>;
 }
 
 function fillAssetIds(
@@ -93,18 +83,16 @@ function fillAssetIds(
 
   assetIds[puuid] = {
     ...repetitiveAssetIds,
+    primaryStyleId: primaryStyle.style,
+    subStyleId: subStyle.style,
+    perkId: primaryStyle.selections[0].perk,
   };
-
-  assetIds[puuid];
-  assetIds[puuid].primaryStyleId = primaryStyle.style;
-  assetIds[puuid].subStyleId = subStyle.style;
-  assetIds[puuid].perkId = primaryStyle.selections[0].perk;
 }
 
 function extractRepetitiveFieldsObj(
   participant: ParticipantInfos
 ): RepetitiveFieldObj[] {
-  const createData = (data: any, prefix: string) => ({
+  const createObj = (data: any, prefix: string) => ({
     data,
     prefix,
   });
@@ -114,28 +102,34 @@ function extractRepetitiveFieldsObj(
     const runesTree = primaryStyle.selections.concat(subStyle.selections);
     runesTree.shift();
 
-    return createData(
+    return createObj(
       runesTree.map((rune) => rune.perk),
       "runeId"
     );
   };
 
   const extractItems = () => {
-    const data = convertRepetitivesFields(participant, 0, "item");
+    const data = createArrayFrom(participant)
+      .ofRepetitiveFieldsStartingWith("item")
+      .endingWith()
+      .withStartId(0);
 
     if (data.length > 6) data.splice(6, 1);
 
-    return createData(data, "itemId");
+    return createObj(data, "itemId");
   };
 
   const extractSummoners = () =>
-    createData(
-      convertRepetitivesFields(participant, 1, "summoner", "Id"),
+    createObj(
+      createArrayFrom(participant)
+        .ofRepetitiveFieldsStartingWith("summoner")
+        .endingWith("Id")
+        .withStartId(1),
       "summonerId"
     );
 
   const extractStatsMods = () =>
-    createData(Object.values(participant.perks.statPerks), "statsModId");
+    createObj(Object.values(participant.perks.statPerks), "statsModId");
 
   return [
     extractItems(),
@@ -145,22 +139,23 @@ function extractRepetitiveFieldsObj(
   ];
 }
 
-function convertRepetitivesFields(
-  origin: any,
-  startId: number,
-  prefix: string,
-  suffix: string = ""
-): number[] {
-  let fields: number[] = [];
+const createArrayFrom = (origin: any) => ({
+  ofRepetitiveFieldsStartingWith: (prefix: string) => ({
+    endingWith: (suffix: string = "") => ({
+      withStartId: (startId: number) => {
+        const fields: number[] = [];
 
-  const itinerateField = (i: number) => origin[`${prefix}${i}${suffix}`];
+        const currentField = (i: number) => origin[`${prefix}${i}${suffix}`];
 
-  for (let i = startId; itinerateField(i); i++) {
-    fields.push(itinerateField(i));
-  }
+        for (let i = startId; currentField(i); i++) {
+          fields.push(currentField(i));
+        }
 
-  return fields;
-}
+        return fields;
+      },
+    }),
+  }),
+});
 
 function convertRepetitiveFieldsForDB(
   repetitiveFields: RepetitiveFieldObj[]

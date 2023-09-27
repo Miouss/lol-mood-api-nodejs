@@ -58,14 +58,14 @@ function participant(participantStats: ParticipantStatsType) {
   const handleSkillLevelUp = (event: MatchTimelineInfoFrameEvent) => {
     const { skillSlot, levelUpType } = event;
 
-    const levelUpTypeLookup: Record<SubEventType, Function> = {
+    const handleLevelUpType: Record<SubEventType, Function> = {
       [SubEventType.NormalLevelUp]: () =>
         (participantStats.skillsOrder += skillSlot),
       [SubEventType.EvolveLevelUp]: () =>
         (participantStats.evolvesOrder += skillSlot),
     };
 
-    levelUpTypeLookup[levelUpType as SubEventType]();
+    handleLevelUpType[levelUpType as SubEventType]();
   };
 
   const handleItemUndo = () => {
@@ -87,11 +87,11 @@ export function createParticipantsStats(
   return Array(10)
     .fill([])
     .map(
-      (_, index): ParticipantStatsType => ({
+      (_, i): ParticipantStatsType => ({
         items: [],
         skillsOrder: "",
         evolvesOrder: "",
-        puuid: participants[index].puuid,
+        puuid: participants[i].puuid,
       })
     );
 }
