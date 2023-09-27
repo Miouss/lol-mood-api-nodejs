@@ -18,14 +18,17 @@ export async function retrieveMatchesData(
   next: NextFunction
 ) {
   try {
-    const { region, account } = res.locals;
+    const {
+      region,
+      account: { puuid },
+    } = res.locals;
 
     const matchList = await riot(region).getMatchListByPuuid(
-      account.puuid,
+      puuid,
       req.params.count
     );
 
-    let matchesData: ParticipantMatchDataResponse[] = [];
+    const matchesData: ParticipantMatchDataResponse[] = [];
 
     for (const matchId of matchList) {
       const isMatchStored = await Game.exists(matchId);
@@ -39,7 +42,7 @@ export async function retrieveMatchesData(
 
       if (!isMatchStored) await handleParticipantMatchData();
 
-      const matchData = await GameInfo.getByPuuid(matchId, account.puuid);
+      const matchData = await GameInfo.getByPuuid(matchId, puuid);
 
       if (!matchData) await handleParticipantMatchData();
 
