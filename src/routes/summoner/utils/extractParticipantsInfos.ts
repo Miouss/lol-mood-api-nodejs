@@ -112,7 +112,7 @@ function extractRepetitiveFieldsObj(
     const data = createArrayFrom(participant)
       .ofRepetitiveFieldsStartingWith("item")
       .endingWith()
-      .withStartId(0);
+      .withIdRange(0, 5);
 
     if (data.length > 6) data.splice(6, 1);
 
@@ -124,7 +124,7 @@ function extractRepetitiveFieldsObj(
       createArrayFrom(participant)
         .ofRepetitiveFieldsStartingWith("summoner")
         .endingWith("Id")
-        .withStartId(1),
+        .withIdRange(1),
       "summonerId"
     );
 
@@ -142,13 +142,15 @@ function extractRepetitiveFieldsObj(
 const createArrayFrom = (origin: any) => ({
   ofRepetitiveFieldsStartingWith: (prefix: string) => ({
     endingWith: (suffix: string = "") => ({
-      withStartId: (startId: number) => {
+      withIdRange: (startId: number, endId?: number) => {
         const fields: number[] = [];
 
-        const currentField = (i: number) => origin[`${prefix}${i}${suffix}`];
+        const getField = (i: number) => origin[`${prefix}${i}${suffix}`];
 
-        for (let i = startId; currentField(i); i++) {
-          fields.push(currentField(i));
+        const condition = (i: number) => (endId ? i <= endId : getField(i));
+        for (let i = startId; condition(i); i++) {
+          const currField = getField(i);
+          if (currField) fields.push(currField);
         }
 
         return fields;
