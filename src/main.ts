@@ -9,9 +9,10 @@ dotenv.config();
 try {
   await connectToDatabase();
 
-  cors({ origin: "http://localhost:3001" });
+  cors({ origin: "http://localhost:80" });
+
   const app = express();
-  const PORT = process.env.PORT || 3002;
+  const PORT = process.env.PORT;
 
   app.use(cors());
   app.use("/api/summoner", summoner);
