@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node --esm --experimental-specifier-resolution=node -r dotenv/config src/main.ts",
     "dev": "nodemon -r dotenv/config src/main.ts",
-    "build": "docker build -t lolmood-api ."
+    "build": "vite build"
   },
   "devDependencies": {
     "@types/cors": "^2.8.14",

@@ -9,8 +9,10 @@ services:
       - "3306:3306"
     volumes:
       - ./src/database/database.sql:/docker-entrypoint-initdb.d/database.sql
+    restart: unless-stopped
   api:
     build: .
+    image: "lolmood_api"
     container_name: lolmood_api
     environment:
       DB_HOST: ${DB_HOST}
@@ -21,3 +23,4 @@ services:
       API_KEY: ${API_KEY}
     ports:
       - "3000:3000"
+    restart: unless-stopped
