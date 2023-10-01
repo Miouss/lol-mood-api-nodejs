@@ -1,12 +1,21 @@
 import mysql from "mysql2/promise";
 
 async function connectToDatabase() {
-  const { DB_HOST, DB_USER, DB_PASSWORD, DB_NAME } = process.env;
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const {
+    DB_HOST,
+    DB_HOST_DEV,
+    DB_USER,
+    DB_PASSWORD,
+    DB_PASSWORD_DEV,
+    DB_NAME,
+  } = process.env;
 
   const connection = await mysql.createConnection({
-    host: DB_HOST,
+    host: isProduction ? DB_HOST : DB_HOST_DEV,
     user: DB_USER,
-    password: DB_PASSWORD,
+    password: isProduction ? DB_PASSWORD : DB_PASSWORD_DEV,
     database: DB_NAME,
   });
 
