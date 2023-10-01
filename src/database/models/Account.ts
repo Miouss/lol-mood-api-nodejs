@@ -1,25 +1,27 @@
-import { insertInto, updateSetWhere, select } from "../helpers";
+import { Query } from "../helpers";
 import { executeQuery, getRowId, isStored } from "../utils";
 
 export class Account {
   private static table = "account";
 
   public static async add(data: StoredAccount) {
-    const query = insertInto(this.table).values(
-      convertDataForDB(data) as unknown as Record<string, string | number>
-    );
+    const query = new Query()
+      .insertInto(this.table)
+      .values(
+        convertDataForDB(data) as unknown as Record<string, string | number>
+      );
 
     await executeQuery(query, "create account");
   }
 
   public static async create(puuid: string) {
-    const query = insertInto(this.table).values({ puuid });
+    const query = new Query().insertInto(this.table).values({ puuid });
 
     await executeQuery(query, "create unknown account");
   }
 
   public static async get(puuid: string) {
-    const query = select("*").from(this.table).where({ puuid });
+    const query = new Query().select("*").from(this.table).where({ puuid });
 
     return await executeQuery(query, "getAccount");
   }
@@ -33,9 +35,10 @@ export class Account {
   }
 
   public static async update(data: StoredAccount) {
-    const query = updateSetWhere(this.table, convertDataForDB(data), {
-      puuid: data.puuid,
-    });
+    const query = new Query()
+      .update(this.table)
+      .set(convertDataForDB(data))
+      .where({ puuid: data.puuid });
 
     await executeQuery(query, "updateAccount");
   }

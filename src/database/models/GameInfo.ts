@@ -1,4 +1,4 @@
-import { insertInto, select } from "../helpers";
+import { Query } from "../helpers";
 import { convertAllRepetitivesFields, executeQuery } from "../utils";
 
 export class GameInfo {
@@ -11,7 +11,10 @@ export class GameInfo {
   };
 
   public static async get(gameInfoId: string) {
-    const query = select("*").from(this.table).where({ gameId: gameInfoId });
+    const query = new Query()
+      .select("*")
+      .from(this.table)
+      .where({ id: gameInfoId });
 
     const result = await executeQuery(query, "getGameInfo");
 
@@ -21,21 +24,24 @@ export class GameInfo {
   }
 
   public static async create(data: ParticipantMatchData) {
-    const query = insertInto(this.table).values(
-      data as unknown as Record<string, string | number>
-    );
+    const query = new Query()
+      .insertInto(this.table)
+      .values(data as unknown as Record<string, string | number>);
 
     await executeQuery(query, "setGameInfo");
   }
 
   public static async getByPuuid(gameId: string, puuid: string) {
-    const query = select(
-      `${this.tables.game}.identifier as matchId`,
-      `${this.tables.champ}.name as champName`,
-      `${this.table}.*`
-    )
+    const query = new Query()
+      .select(
+        `${this.tables.game}.identifier as matchId`,
+        `${this.tables.champ}.name as champName`,
+        `${this.table}.*`
+      )
       .from(this.table)
-      .innerJoin(this.tables.game, this.tables.champ, this.tables.account)
+      .innerJoin(this.tables.game)
+      .innerJoin(this.tables.champ)
+      .innerJoin(this.tables.account)
       .where({ identifier: gameId, puuid });
 
     const result = await executeQuery(query, "getByPuuid");
@@ -46,7 +52,8 @@ export class GameInfo {
   }
 
   public static async getByChamp(champName: string) {
-    const query = select(`${this.table}.*`)
+    const query = new Query()
+      .select(`${this.table}.*`)
       .from(this.table)
       .innerJoin(this.tables.champ)
       .where({ [`${this.tables.champ}.name`]: champName });

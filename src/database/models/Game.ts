@@ -1,4 +1,4 @@
-import { insertInto } from "../helpers";
+import { Query } from "../helpers";
 import { executeQuery, getRowId, isStored } from "../utils";
 
 export class Game {
@@ -9,7 +9,7 @@ export class Game {
   }
 
   public static async create(gameId: string) {
-    const query = insertInto(this.table).values({
+    const query = new Query().insertInto(this.table).values({
       identifier: gameId,
     });
 
