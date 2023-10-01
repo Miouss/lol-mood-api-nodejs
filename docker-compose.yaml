@@ -24,3 +24,9 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
+  web:
+    build: ../lolmood-frontend
+    image: lolmood_web
+    ports:
+      - "80:80"
+    restart: unless-stopped
