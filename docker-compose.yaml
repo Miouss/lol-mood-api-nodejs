@@ -19,14 +19,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
-      PORT: ${PORT}
       API_KEY: ${API_KEY}
     ports:
-      - "3000:3000"
-    restart: unless-stopped
-  web:
-    build: ../lolmood-frontend
-    image: lolmood_web
-    ports:
-      - "80:80"
+      - "3001:3001"
     restart: unless-stopped
