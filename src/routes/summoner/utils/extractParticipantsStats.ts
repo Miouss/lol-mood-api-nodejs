@@ -21,6 +21,12 @@ export async function extractParticipantsStats(matchTimeline: MatchTimeline) {
     }
   }
 
+  participantsStats.forEach((participantStats) => {
+    participantStats.items = participantStats.items.filter(
+      ({ type }) => type !== null
+    );
+  });
+
   return participantsStats;
 }
 
@@ -31,7 +37,11 @@ function participant(participantStats: ParticipantStatsType) {
       timestamp: number;
     };
 
-    const { total, purchasable } = (itemJSON as any).data[itemId].gold;
+    addItem(itemId, timestamp);
+  };
+
+  const addItem = (itemId: number, timestamp: number) => {
+    const { total, purchasable } = (itemJSON as any).data[itemId]?.gold || {};
 
     const isItem = purchasable && total > 0;
 
@@ -47,12 +57,25 @@ function participant(participantStats: ParticipantStatsType) {
     const isStartingItem = total <= 500 && isNearBeginningOfGame;
     const isCompletedItem = isMythicItem || isLegendaryItem;
 
-    if (!isStartingItem && !isCompletedItem) return;
+    const isItemHandled = isStartingItem || isCompletedItem;
+    const itemType = isItemHandled
+      ? isStartingItem
+        ? "starting"
+        : "completed"
+      : null;
 
     participantStats.items.push({
       itemId,
-      type: isStartingItem ? "starting" : "completed",
+      type: itemType,
     });
+  };
+
+  const removeItem = (itemId: number) => {
+    const itemIndex = participantStats.items.findIndex(
+      ({ itemId: id }) => id === itemId
+    );
+
+    participantStats.items.splice(itemIndex, 1);
   };
 
   const handleSkillLevelUp = (event: MatchTimelineInfoFrameEvent) => {
@@ -68,15 +91,16 @@ function participant(participantStats: ParticipantStatsType) {
     handleLevelUpType[levelUpType as SubEventType]();
   };
 
-  const handleItemUndo = () => {
-    participantStats.items.pop();
+  const handleItemUndo = (e: MatchTimelineInfoFrameEvent) => {
+    removeItem(e.beforeId!);
+    addItem(e.afterId!, e.timestamp);
   };
 
   return {
     event: (event: MatchTimelineInfoFrameEvent) => ({
       [EventType.ItemPurchased]: () => handleItemPurchased(event),
       [EventType.SkillLevelUp]: () => handleSkillLevelUp(event),
-      [EventType.ItemUndo]: handleItemUndo,
+      [EventType.ItemUndo]: () => handleItemUndo(event),
     }),
   };
 }
@@ -107,7 +131,7 @@ interface ParticipantsWithPuuidAndIdType {
 
 export interface ItemDetails {
   itemId: number;
-  type: "starting" | "completed";
+  type: "starting" | "completed" | null;
 }
 
 export interface ParticipantStatsType {
