@@ -6,7 +6,9 @@
   "scripts": {
     "start": "ts-node --esm --experimental-specifier-resolution=node -r dotenv/config src/main.ts",
     "dev": "nodemon -r dotenv/config src/main.ts",
-    "build": "vite build"
+    "build": "vite build",
+    "dockbuild": "docker build -t ghcr.io/miouss/lolmood-backend .",
+    "dockpush": "docker push ghcr.io/miouss/lolmood-backend"
   },
   "devDependencies": {
     "@types/cors": "^2.8.14",
