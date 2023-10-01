@@ -9,12 +9,13 @@ dotenv.config();
 try {
   await connectToDatabase();
 
-  cors({ origin: "http://localhost:80" });
+  cors({ origin: "http://lolmood.net" });
 
   const app = express();
-  const PORT = process.env.PORT;
+  const PORT = 3001;
 
   app.use(cors());
+
   app.use("/api/summoner", summoner);
   app.use("/api/champ", champ);
 
