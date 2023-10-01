@@ -4,7 +4,8 @@ export function arrayToKeyedObj(array: unknown[], key: string) {
   let i = 0;
 
   array.forEach((element) => {
-    obj[`${key}${i}`] = element;
+    if (i > 5) return;
+    obj[`${key + i}`] = element;
     i++;
   });
 

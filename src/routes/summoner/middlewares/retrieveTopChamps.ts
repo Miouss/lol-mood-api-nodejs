@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { ChampStats, Locals } from "../types";
-import { GameInfo } from "../../../database/models";
 import { twoDecimalsNum } from "../../utils";
 
 export async function retrieveTopChamps(
