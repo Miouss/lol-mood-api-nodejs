@@ -1,3 +1,1 @@
-# lol-mood-api-nodejs
-
-This is the node js version of the PHP backend of the lolmood's api (you can found it [here](https://github.com/Miouss/lol-mood-api)). 
+This is the up to date version of the lolmood api that has been migrated from PHP to NodeJS, the old one can be found [here](https://github.com/Miouss/lolmood-api-old). 
