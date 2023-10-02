@@ -1,0 +1,25 @@
+# MERGE WITH BACKEND COMPOSE FILE 
+version: "3.8"
+services:
+  db:
+    image: mysql:latest
+    container_name: lolmood_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
+    restart: unless-stopped
+  api:
+    image: ghcr.io/miouss/lolmood-backend:latest
+    container_name: lolmood_api
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      API_KEY: ${API_KEY}
+    ports:
+      - "3001:3001"
+    restart: unless-stopped

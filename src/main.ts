@@ -9,7 +9,11 @@ dotenv.config();
 try {
   await connectToDatabase();
 
-  cors({ origin: "http://lolmood.net" });
+  const isProduction = process.env.NODE_ENV === "production";
+
+  cors({
+    origin: isProduction ? "https://lolmood.net" : "localhost:3000",
+  });
 
   const app = express();
   const PORT = 3001;
